@@ -75,14 +75,13 @@ ScreenState currentScreen = MAIN_SCREEN;
 // -- BUTTON DEBOUNCING 
 unsigned long lastButtonPressTime = 0;
 const unsigned long buttonDebounceDelay = 200;  // milliseconds
-bool lastAssignButtonState = HIGH;
+bool lastAssignButtonState = LOW;
 bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
 bool lastNextButtonState = HIGH;
 
 // -- FUNCTION TO READ MUX CHANNEL --
-int
-readMUXChannel(int channel) {
+int readMUXChannel(int channel) {
   // Set MUX selection pins based on channel (0-7)
   digitalWrite(MUX_S0, channel & 1);
   digitalWrite(MUX_S1, (channel >> 1) & 1);
@@ -107,8 +106,47 @@ void sendMIDICC(int potNumber, int midiValue) {
   MIDI.sendControlChange(midiCC[potNumber], midiValue, 1);  // Channel 1
 }
 
+// -- FUNCTION FOR BUTTON HANDLING --
+void readButtons() {
+
+  // BUTTON STATES
+  bool assignButtonState = digitalRead(ASSIGN_BUTTON);
+  bool enterButtonState = digitalRead(ENTER_BUTTON);
+  bool prevButtonState = digitalRead(PREV_BUTTON);
+  bool nextButtonState = digitalRead(NEXT_BUTTON);
+
+  // BUTTON FUNCTIONS
+  // ASSIGN
+  // EDGE DETECTION: Only trigger on the "Rising Edge" (Press)
+  if (assignButtonState == HIGH && lastAssignButtonState == LOW) {
+    
+    // DEBOUNCE: Ignore noise that happens faster than 200ms
+    if (millis() - lastButtonPressTime > buttonDebounceDelay) {
+      
+      if (currentScreen == MAIN_SCREEN) {
+        currentScreen = ASSIGN_SCREEN;
+        drawAssignScreen();
+      } else {
+        currentScreen = MAIN_SCREEN;
+        // Draw the main screen with the last known pot values
+        drawMainScreen(lastEditedPot, lastPotValues[lastEditedPot]);
+      }
+      
+      lastButtonPressTime = millis();
+    }
+  }
+
+  // UPDATE LAST BUTTON STATES
+  lastAssignButtonState = assignButtonState;
+}
+
 // -- SETUP --
 void setup() {
+
+  // -- DEBUG (Comment out for final build to save memory)
+  // Serial.begin(9600);
+  // while (!Serial); // Wait for Serial Monitor to open
+  // Serial.println(F("MC8P Debug Mode Starting..."));
 
   // Initialize MUX control pins
   pinMode(MUX_S0, OUTPUT);
@@ -117,11 +155,11 @@ void setup() {
   pinMode(MUX_S3, OUTPUT);
   pinMode(MUX_SIG, INPUT);
 
-  // Initialise BUTTONS
-  pinMode(ASSIGN_BUTTON, INPUT);
-  pinMode(ENTER_BUTTON, INPUT);
-  pinMode(PREV_BUTTON, INPUT);
-  pinMode(NEXT_BUTTON, INPUT);
+  // Initialise BUTTONS with INPUT_PULLUP for proper operation
+  pinMode(ASSIGN_BUTTON, INPUT_PULLUP);
+  pinMode(ENTER_BUTTON, INPUT_PULLUP);
+  pinMode(PREV_BUTTON, INPUT_PULLUP);
+  pinMode(NEXT_BUTTON, INPUT_PULLUP);
 
   // Initialize MIDI
   MIDI.begin(1);  // Start MIDI on channel 1
@@ -145,66 +183,53 @@ void setup() {
   }
 
   // Show initial display
+  currentScreen = MAIN_SCREEN;
   updateDisplay(0, lastPotValues[0]);
 }
 
 // -- LOOP --
 void loop() {
-  // Loop through all 8 potentiometers
   for (int pot = 0; pot < 8; pot++) {
     unsigned long currentTime = millis();
-
-    // Rate limit reads to prevent noise and reduce MUX switching
     if ((currentTime - lastReadTime[pot]) > readDelay) {
-
-      // Read current pot value
       int rawValue = readMUXChannel(pot);
       int midiValue = map(rawValue, 0, 1023, 0, 127);
 
-      // Check if value has changed by more than the threshold (2%)
       if (abs(midiValue - lastPotValues[pot]) >= CHANGE_THRESHOLD) {
-        // Update last known value
         lastPotValues[pot] = midiValue;
-
-        // Send MIDI CC message
-        sendMIDICC(pot, midiValue);
-
-        // Update display with last edited pot
         lastEditedPot = pot;
-        updateDisplay(lastEditedPot, midiValue);
-      }
 
-      // Update read timer regardless of whether value changed
+        if (currentScreen == MAIN_SCREEN) {
+          // Debug output (comment out for final build)
+          // Serial.print(F("Pot ")); Serial.print(pot);
+          // Serial.print(F(" changed to: ")); Serial.println(midiValue);
+          drawMainScreen(lastEditedPot, midiValue);
+        }
+      }
       lastReadTime[pot] = currentTime;
     }
   }
 
-  // Small delay to prevent overwhelming the MUX
-  delay(2);
-}
-
-// -- BUTTON HANDLING --
-void readButtons() {
+  readButtons();
+  delay(5); 
 }
 
 // -- DISPLAY SCREENS --
 // -- LOADING SCREEN
 void drawLoadingScreen() {
-
   // CLEAR
   display.clearDisplay();
 
-  display.drawRoundRect(1, 1, 125, 62, 4, 1);
-
-  display.setTextColor(1);
+  display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
+  display.setTextColor(SSD1306_WHITE);
   display.setTextSize(2);
   display.setTextWrap(false);
   display.setCursor(41, 14);
-  display.print("MC8P");
+  display.print(F("MC8P"));  // F() macro added
 
   display.setTextSize(1);
   display.setCursor(53, 31);
-  display.print("mini");
+  display.print(F("mini"));  // F() macro added
 
   display.setCursor(52, 45);
   display.print(FIRMWARE_VERSION);
@@ -217,21 +242,22 @@ void drawMainScreen(int potNumber, int midiValue) {
   // CLEAR
   display.clearDisplay();
 
-  display.drawRoundRect(1, 1, 125, 62, 4, 1);
-
-  display.drawRoundRect(6, 47, 115, 10, 1, 1);
+  display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
+  display.drawRoundRect(6, 47, 115, 10, 1, SSD1306_WHITE);
 
   // Draw progress bar based on MIDI value (0-127)
   int barWidth = map(midiValue, 0, 127, 0, 111);
-  display.fillRect(8, 49, barWidth, 6, 1);
+  if (barWidth > 0) {
+    display.fillRect(8, 49, barWidth, 6, SSD1306_WHITE);
+  }
 
-  display.setTextColor(1);
+  display.setTextColor(SSD1306_WHITE);
   display.setTextWrap(false);
   display.setTextSize(1);
   display.setCursor(50, 8);
 
   // Print pot number (1-8)
-  display.print("POT ");
+  display.print(F("POT "));  // F() macro added
   display.print(potNumber + 1);
 
   display.setTextSize(2);
@@ -239,10 +265,10 @@ void drawMainScreen(int potNumber, int midiValue) {
 
   // Print MIDI value (0-127) with leading spaces for consistent positioning
   if (midiValue < 10) {
-    display.print("  ");
+    display.print(F("  "));  // F() macro added
     display.print(midiValue);
   } else if (midiValue < 100) {
-    display.print(" ");
+    display.print(F(" "));   // F() macro added
     display.print(midiValue);
   } else {
     display.print(midiValue);
@@ -255,37 +281,38 @@ void drawMainScreen(int potNumber, int midiValue) {
 void drawAssignScreen(void) {
   // CLEAR
   display.clearDisplay();
+  display.setTextSize(1);
 
-  display.drawRoundRect(1, 1, 125, 62, 4, 1);
+  display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
 
-  display.setTextColor(1);
+  display.setTextColor(SSD1306_WHITE);
   display.setTextWrap(false);
   display.setCursor(5, 5);
-  display.print("MIDI ASSIGN");
+  display.print(F("MIDI ASSIGN"));  // F() macro added
 
   display.setCursor(20, 53);
-  display.print("+ ADD");
+  display.print(F("+ ADD"));  // F() macro added
 
   display.setCursor(61, 53);
-  display.print("- REMOVE");
+  display.print(F("- REMOVE"));  // F() macro added
 
   display.setCursor(93, 5);
-  display.print("POT 8");
+  display.print(F("POT 8"));  // F() macro added
 
   display.setCursor(81, 15);
-  display.print("MSG 3/3");
+  display.print(F("MSG 3/3"));  // F() macro added
 
   display.setCursor(4, 28);
-  display.print("Ch OMNI ");
+  display.print(F("Ch OMNI "));  // F() macro added
 
   display.setCursor(4, 40);
-  display.print("126-127");
+  display.print(F("126-127"));  // F() macro added
 
   display.setCursor(66, 28);
-  display.print("CC 127");
+  display.print(F("CC 127"));  // F() macro added
 
   display.setCursor(66, 40);
-  display.print("NOR");
+  display.print(F("NOR"));  // F() macro added
 
   display.display();
 }
