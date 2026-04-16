@@ -47,6 +47,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // -- MIDI INSTANCE --
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
+// -- MIDI STRUCT
+struct MIDIMessage {
+  int cc = 7;
+  int channel = 1;
+  bool omni = false;  // OMNI mode flag
+};
+
+MIDIMessage potMessages[8]; // 8 pots, each with its own MIDI message
+int activeMessages[8] = {1, 1, 1, 1, 1, 1, 1, 1}; // How many CCs each pot has
+
 // -- FIRMWARE VERSION --
 const char* FIRMWARE_VERSION = "1.0";
 
@@ -60,11 +70,6 @@ unsigned long readDelay = 5;  // milliseconds between reads for each pot
 // 2% threshold in MIDI value terms (2% of 127 = ~2.54, so we'll use 3)
 const int CHANGE_THRESHOLD = 3;  // 2.36% of 127, close enough to 2%
 
-// -- MIDI
-// MIDI Control Change (CC) numbers for each pot
-int midiCC[8] = { 7, 7, 7, 7, 7, 7, 7, 7 };  // All pots send CC #7 (Volume)
-int midiCh[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };  // Each pot on different MIDI channel
-
 // -- SCREENS --
 enum ScreenState { MAIN_SCREEN,
                    ASSIGN_SCREEN,
@@ -74,7 +79,7 @@ ScreenState currentScreen = MAIN_SCREEN;
 
 // -- ASSIGN SCREEN VARIABLES --
 int selectedPot = 0;     // Currently selected pot (0-7)
-int assignEditMode = 0;  // 0 = selecting pot, 1 = editing CC, 2 = editing Channel
+int assignEditMode = 0;  // 0 = selecting pot, 1 = editing Channel, 2 = editing CC
 unsigned long lastFlashTime = 0;
 const unsigned long flashInterval = 500;  // Flash every 500ms
 bool showPotNumber = true;                // For flashing effect
@@ -110,8 +115,16 @@ void updateDisplay(int potNumber, int midiValue) {
 
 // -- FUNCTION TO SEND MIDI CC MESSAGE --
 void sendMIDICC(int potNumber, int midiValue) {
-  // Send MIDI Control Change message on the specified channel
-  MIDI.sendControlChange(midiCC[potNumber], midiValue, midiCh[potNumber]);
+  // Send MIDI Control Change message based on the pot's configuration
+  if (potMessages[potNumber].omni) {
+    // OMNI mode: send to all 16 channels
+    for (int ch = 1; ch <= 16; ch++) {
+      MIDI.sendControlChange(potMessages[potNumber].cc, midiValue, ch);
+    }
+  } else {
+    // Normal mode: send to specific channel
+    MIDI.sendControlChange(potMessages[potNumber].cc, midiValue, potMessages[potNumber].channel);
+  }
 }
 
 // -- FUNCTION FOR BUTTON HANDLING --
@@ -143,7 +156,7 @@ void readButtons() {
     }
   }
 
-  // ENTER BUTTON - Cycle through edit modes
+  // ENTER BUTTON - Cycle through edit modes (0->1->2->0)
   if (enterButtonState == HIGH && lastEnterButtonState == LOW) {
     if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
 
@@ -166,12 +179,28 @@ void readButtons() {
           selectedPot = (selectedPot - 1 + 8) % 8;
           drawAssignScreen();
         } else if (assignEditMode == 1) {
-          // Editing CC - decrease CC value
-          midiCC[selectedPot] = (midiCC[selectedPot] - 1 + 128) % 128;
+          // Editing Channel - cycle through: 1-16, then OMNI
+          if (potMessages[selectedPot].omni) {
+            // If OMNI is on, turn it off and go to channel 16
+            potMessages[selectedPot].omni = false;
+            potMessages[selectedPot].channel = 16;
+          } else {
+            // Decrease channel (1-16)
+            if (potMessages[selectedPot].channel > 1) {
+              potMessages[selectedPot].channel--;
+            } else {
+              // At channel 1, going previous enables OMNI
+              potMessages[selectedPot].omni = true;
+            }
+          }
           drawAssignScreen();
         } else if (assignEditMode == 2) {
-          // Editing Channel - decrease channel (1-16)
-          midiCh[selectedPot] = ((midiCh[selectedPot] - 2 + 16) % 16) + 1;
+          // Editing CC - decrease CC value (0-127)
+          if (potMessages[selectedPot].cc > 0) {
+            potMessages[selectedPot].cc--;
+          } else {
+            potMessages[selectedPot].cc = 127; // Wrap around
+          }
           drawAssignScreen();
         }
       }
@@ -190,12 +219,28 @@ void readButtons() {
           selectedPot = (selectedPot + 1) % 8;
           drawAssignScreen();
         } else if (assignEditMode == 1) {
-          // Editing CC - increase CC value
-          midiCC[selectedPot] = (midiCC[selectedPot] + 1) % 128;
+          // Editing Channel - cycle through: OMNI, then 1-16
+          if (potMessages[selectedPot].omni) {
+            // If OMNI is on, turn it off and go to channel 1
+            potMessages[selectedPot].omni = false;
+            potMessages[selectedPot].channel = 1;
+          } else {
+            // Increase channel (1-16)
+            if (potMessages[selectedPot].channel < 16) {
+              potMessages[selectedPot].channel++;
+            } else {
+              // At channel 16, going next enables OMNI
+              potMessages[selectedPot].omni = true;
+            }
+          }
           drawAssignScreen();
         } else if (assignEditMode == 2) {
-          // Editing Channel - increase channel (1-16)
-          midiCh[selectedPot] = ((midiCh[selectedPot] - 1 + 1) % 16) + 1;
+          // Editing CC - increase CC value (0-127)
+          if (potMessages[selectedPot].cc < 127) {
+            potMessages[selectedPot].cc++;
+          } else {
+            potMessages[selectedPot].cc = 0; // Wrap around
+          }
           drawAssignScreen();
         }
       }
@@ -213,6 +258,13 @@ void readButtons() {
 
 // -- SETUP --
 void setup() {
+  // Initialize pot messages with default values
+  for (int i = 0; i < 8; i++) {
+    potMessages[i].cc = 7;           // Default CC #7 (Volume)
+    potMessages[i].channel = i + 1;  // Channels 1-8
+    potMessages[i].omni = false;     // OMNI off by default
+  }
+
   // Initialize MUX control pins
   pinMode(MUX_S0, OUTPUT);
   pinMode(MUX_S1, OUTPUT);
@@ -275,10 +327,9 @@ void loop() {
         lastPotValues[pot] = midiValue;
         lastEditedPot = pot;
 
-        // Send MIDI message
-        sendMIDICC(pot, midiValue);
-
+        // Only send MIDI message if we're on MAIN_SCREEN
         if (currentScreen == MAIN_SCREEN) {
+          sendMIDICC(pot, midiValue);
           drawMainScreen(lastEditedPot, midiValue);
         }
       }
@@ -355,18 +406,14 @@ void drawAssignScreen() {
   display.setCursor(8, 5);
   display.print(F("MIDI ASSIGN"));
 
-  // CC message number
-  display.setCursor(77, 15);
-  display.print("MSG 3/3");
-
   // Show current edit mode
-  display.setCursor(8, 15);
+  display.setCursor(8, 17);
   if (assignEditMode == 0) {
     display.print(F("SELECT POT"));
   } else if (assignEditMode == 1) {
-    display.print(F("EDIT CC"));
+    display.print(F("EDIT CHANNEL"));
   } else {
-    display.print(F("EDIT CH"));
+    display.print(F("EDIT CC"));
   }
 
   // Pot number with flashing effect
@@ -385,43 +432,47 @@ void drawAssignScreen() {
     display.print(selectedPot + 1);
   }
 
-  // CC value display
-  display.setCursor(8, 40);
-  display.print(F("CC "));
+  // Channel display 
+  display.setCursor(8, 30);
   if (assignEditMode == 1) {
-    // Highlight CC value when editing
-    display.print(F("["));
-    display.print(midiCC[selectedPot]);
-    display.print(F("]"));
-  } else {
-    display.print(midiCC[selectedPot]);
-    display.print(F("   "));  // Padding
-  }
-
-  // Channel display
-  display.setCursor(8, 28);
-  if (assignEditMode == 2) {
     // Highlight Channel when editing
     display.print(F("CH ["));
-    display.print(midiCh[selectedPot]);
+    if (potMessages[selectedPot].omni) {
+      display.print(F("OMNI"));
+    } else {
+      display.print(potMessages[selectedPot].channel);
+    }
     display.print(F("]"));
   } else {
     display.print(F("CH "));
-    display.print(midiCh[selectedPot]);
+    if (potMessages[selectedPot].omni) {
+      display.print(F("OMNI"));
+    } else {
+      display.print(potMessages[selectedPot].channel);
+    }
     display.print(F("   "));  // Padding
   }
 
-  // Bottom buttons
-  display.setCursor(20, 53);
-  display.print(F("+ ADD"));
-  display.setCursor(61, 53);
-  display.print(F("- REMOVE"));
-
-  // Display current parameter values for reference
-  display.setCursor(4, 28);
-  if (midiCC[selectedPot] < 100) {
-    display.print(F("         "));  // Clear area
+  // CC value display 
+  display.setCursor(8, 42);
+  display.print(F("CC "));
+  if (assignEditMode == 2) {
+    // Highlight CC value when editing
+    display.print(F("["));
+    display.print(potMessages[selectedPot].cc);
+    display.print(F("]"));
+  } else {
+    display.print(potMessages[selectedPot].cc);
+    display.print(F("   "));  // Padding
   }
+
+  // Range display
+  display.setCursor(66, 30);
+  display.print(F("0-127"));
+
+  // Direction display
+  display.setCursor(66, 42);
+  display.print(F("NOR")); // NOR == Normal (low to high) // INV == Inverted (high to low)
 
   display.display();
 }
