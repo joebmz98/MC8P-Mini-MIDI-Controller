@@ -72,6 +72,7 @@ const unsigned long readDelay = 5;
 // Fixed threshold for stability (2% of 127 = ~3)
 const int CHANGE_THRESHOLD = 3;
 
+<<<<<<< Updated upstream
 // -- SCREENS --
 enum ScreenState { MAIN_SCREEN, ASSIGN_SCREEN, CONFIRM_SCREEN };
 ScreenState currentScreen = MAIN_SCREEN;
@@ -90,6 +91,10 @@ bool lastAssignButtonState = HIGH;
 bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
 bool lastNextButtonState = HIGH;
+=======
+// MIDI Control Change (CC) numbers for each pot
+int midiCC[8] = { 7, 7, 7, 7, 7, 7, 7, 7 };  // Customize these CC numbers as needed
+>>>>>>> Stashed changes
 
 // -- FUNCTION TO READ MUX CHANNEL --
 int readMUXChannel(int channel) {

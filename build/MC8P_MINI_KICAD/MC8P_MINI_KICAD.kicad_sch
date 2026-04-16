@@ -2624,7 +2624,7 @@
 		(uuid 3e1455d4-eb9c-4a45-8150-3eab4b2070d9)
 	)
 	(rectangle
-		(start 101.6 49.53)
+		(start 101.6 45.72)
 		(end 157.48 92.71)
 		(stroke
 			(width 0)
@@ -2661,7 +2661,7 @@
 	)
 	(text "Buttons\n"
 		(exclude_from_sim no)
-		(at 105.664 51.308 0)
+		(at 105.664 47.498 0)
 		(effects
 			(font
 				(face "Alagard")
@@ -2773,12 +2773,20 @@
 		(uuid "0b96b54d-c374-4493-ba62-a6ac5f5f2996")
 	)
 	(no_connect
+		(at 57.15 44.45)
+		(uuid "1a641011-5e19-4792-b2e5-45db10531bc2")
+	)
+	(no_connect
 		(at 41.91 24.13)
 		(uuid "249df784-801b-4110-afbc-6f95f8191202")
 	)
 	(no_connect
 		(at 200.66 85.09)
 		(uuid "3282b1d9-65ec-4323-a2af-5e49beee8ed0")
+	)
+	(no_connect
+		(at 57.15 57.15)
+		(uuid "3af864b3-ffe4-45a0-a667-7726a19acf23")
 	)
 	(no_connect
 		(at 200.66 74.93)
@@ -2789,6 +2797,10 @@
 		(uuid "6e781c83-e693-46e2-92f1-e7b1ba6843a1")
 	)
 	(no_connect
+		(at 57.15 36.83)
+		(uuid "75f06a09-4ca8-4f87-b2eb-4badf1e6db4d")
+	)
+	(no_connect
 		(at 200.66 69.85)
 		(uuid "7ab14994-8d98-426c-81b9-13e10786fd3a")
 	)
@@ -2797,12 +2809,52 @@
 		(uuid "7e0901f3-cd61-41b1-9d0b-afb553f9e1f6")
 	)
 	(no_connect
+		(at 57.15 33.02)
+		(uuid "92f6ef58-5ed3-4f4d-ba8a-edbd488b34ad")
+	)
+	(no_connect
+		(at 31.75 62.23)
+		(uuid "9488e549-6599-4110-9fa2-83e9160c066d")
+	)
+	(no_connect
 		(at 200.66 72.39)
 		(uuid "99111a2c-fdf2-418c-a484-c2954f63681d")
 	)
 	(no_connect
+		(at 57.15 64.77)
+		(uuid "a1d45b1c-9976-4d8a-8829-1d88643afb34")
+	)
+	(no_connect
+		(at 57.15 67.31)
+		(uuid "b40df188-e793-4a70-87e9-90b43ba88b08")
+	)
+	(no_connect
+		(at 31.75 64.77)
+		(uuid "e520c57e-3b0c-4e25-8710-fa9c679a7177")
+	)
+	(no_connect
+		(at 31.75 67.31)
+		(uuid "ee982d6c-075b-43e3-8480-8dd7041cd778")
+	)
+	(no_connect
+		(at 57.15 54.61)
+		(uuid "f06bd560-e7ed-4ae1-9a4b-7e78c225813b")
+	)
+	(no_connect
+		(at 31.75 34.29)
+		(uuid "f3885d42-b8d8-4906-a448-e1f58106c61f")
+	)
+	(no_connect
+		(at 57.15 52.07)
+		(uuid "fa693d18-2a81-4c6f-91db-2602c52bb54f")
+	)
+	(no_connect
 		(at 200.66 80.01)
 		(uuid "fb5cc512-66c1-41c3-996b-7fdf80059f2e")
+	)
+	(no_connect
+		(at 31.75 59.69)
+		(uuid "fcd00afc-5f7b-4967-ba15-8f8e0b4ffcbe")
 	)
 	(wire
 		(pts
@@ -2816,6 +2868,16 @@
 	)
 	(wire
 		(pts
+			(xy 149.86 77.47) (xy 149.86 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0832fca1-afe6-4ab3-a8ef-a0895baf20d3")
+	)
+	(wire
+		(pts
 			(xy 33.02 109.22) (xy 33.02 107.95)
 		)
 		(stroke
@@ -2826,7 +2888,7 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 81.28) (xy 121.92 81.28)
+			(xy 124.46 77.47) (xy 121.92 77.47)
 		)
 		(stroke
 			(width 0)
@@ -2906,13 +2968,23 @@
 	)
 	(wire
 		(pts
-			(xy 149.86 62.23) (xy 147.32 62.23)
+			(xy 149.86 58.42) (xy 147.32 58.42)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "2ec55572-5243-43f6-924f-e0f308ef47ad")
+	)
+	(wire
+		(pts
+			(xy 124.46 77.47) (xy 124.46 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fc1db6f-6522-4669-8298-fd415a1acef8")
 	)
 	(wire
 		(pts
@@ -2923,16 +2995,6 @@
 			(type default)
 		)
 		(uuid "30f2c13e-c00a-490c-95ea-448eb14f85d9")
-	)
-	(wire
-		(pts
-			(xy 149.86 83.82) (xy 149.86 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "365745a9-8f09-467c-a40c-e5b755e095b5")
 	)
 	(wire
 		(pts
@@ -2956,16 +3018,6 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 64.77) (xy 124.46 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49b72fa4-7b7d-4866-be99-c80a7fff99d7")
-	)
-	(wire
-		(pts
 			(xy 73.66 129.54) (xy 72.39 129.54)
 		)
 		(stroke
@@ -2986,7 +3038,7 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 62.23) (xy 121.92 62.23)
+			(xy 124.46 58.42) (xy 121.92 58.42)
 		)
 		(stroke
 			(width 0)
@@ -3026,16 +3078,6 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 83.82) (xy 124.46 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "624f1e9d-5ab0-4890-b1eb-e423558146ce")
-	)
-	(wire
-		(pts
 			(xy 55.88 104.14) (xy 54.61 104.14)
 		)
 		(stroke
@@ -3053,6 +3095,16 @@
 			(type default)
 		)
 		(uuid "7002b641-6e92-4072-acf8-e2a9d92dd8a4")
+	)
+	(wire
+		(pts
+			(xy 149.86 58.42) (xy 149.86 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "72502486-788e-4fce-8675-c555f14062db")
 	)
 	(wire
 		(pts
@@ -3153,6 +3205,16 @@
 			(type default)
 		)
 		(uuid "935f3f7c-dedc-4416-b4ee-52137416ca77")
+	)
+	(wire
+		(pts
+			(xy 124.46 58.42) (xy 124.46 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9936461f-05de-4450-bf61-a657224912f2")
 	)
 	(wire
 		(pts
@@ -3266,16 +3328,6 @@
 	)
 	(wire
 		(pts
-			(xy 149.86 64.77) (xy 149.86 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e212c41e-b624-4765-a03c-40686249627f")
-	)
-	(wire
-		(pts
 			(xy 187.96 38.1) (xy 190.5 38.1)
 		)
 		(stroke
@@ -3286,7 +3338,7 @@
 	)
 	(wire
 		(pts
-			(xy 149.86 81.28) (xy 147.32 81.28)
+			(xy 149.86 77.47) (xy 147.32 77.47)
 		)
 		(stroke
 			(width 0)
@@ -3413,28 +3465,6 @@
 		(uuid "09b5da78-678a-4ab3-9403-bd7720b808f8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 26.3458 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ENTER"
-		(shape input)
-		(at 137.16 62.23 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0f9c4ccf-77f8-45de-9a54-6263aa967ca4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 128.3087 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3642,6 +3672,50 @@
 			)
 		)
 	)
+	(global_label "ENTER"
+		(shape input)
+		(at 149.86 58.42 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "35cd755a-ce48-47f4-9cf3-a13ad466c347")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 149.86 49.5687 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "NEXT"
+		(shape input)
+		(at 149.86 77.47 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "397aab83-6068-4b2c-98bb-3eabade6af49")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 149.86 69.8282 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "5V"
 		(shape input)
 		(at 46.99 104.14 180)
@@ -3682,6 +3756,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "5V"
+		(shape input)
+		(at 137.16 77.47 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "404dcd48-9e3c-4695-935f-967907c53c43")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 131.8767 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -3906,9 +4002,9 @@
 			)
 		)
 	)
-	(global_label "ASSIGN"
+	(global_label "5V"
 		(shape input)
-		(at 111.76 62.23 180)
+		(at 111.76 58.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3916,31 +4012,9 @@
 			)
 			(justify right)
 		)
-		(uuid "74c0ec94-2c10-47d9-a9e2-b0c3450e4caf")
+		(uuid "8392d8a6-7c78-48c0-99d1-2db03a9ae0e5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.0619 62.23 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "NEXT"
-		(shape input)
-		(at 137.16 81.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "80b02b97-d1df-4e94-9fce-936dab9dc886")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.5182 81.28 0)
+			(at 106.4767 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4104,6 +4178,28 @@
 			)
 		)
 	)
+	(global_label "5V"
+		(shape input)
+		(at 137.16 58.42 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9f2abbb8-7ba4-46a4-aa36-d098009ed70d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 131.8767 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "S0"
 		(shape input)
 		(at 31.75 49.53 180)
@@ -4192,6 +4288,50 @@
 			)
 		)
 	)
+	(global_label "5V"
+		(shape input)
+		(at 111.76 77.47 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b5eea9a8-2a58-44cd-b248-591ab5646af3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 106.4767 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ASSIGN"
+		(shape input)
+		(at 124.46 58.42 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b8ccc2c8-4b68-4f1e-8913-e97f1f3bd68e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 48.7219 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "SCL"
 		(shape input)
 		(at 83.82 85.09 270)
@@ -4258,6 +4398,28 @@
 			)
 		)
 	)
+	(global_label "PREV"
+		(shape input)
+		(at 124.46 77.47 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c88d3195-8eb4-4f95-a395-16b40d6d6a0d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 124.46 69.7072 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "pot5"
 		(shape input)
 		(at 200.66 59.69 0)
@@ -4298,28 +4460,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PREV"
-		(shape input)
-		(at 111.76 81.28 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "cb3307f1-4035-4a5c-b5ec-cbc40256a9ab")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 103.9972 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -4835,7 +4975,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 124.46 83.82 0)
+		(at 124.46 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4843,7 +4983,7 @@
 		(dnp no)
 		(uuid "15e57b44-b250-4682-a722-237887459701")
 		(property "Reference" "#PWR022"
-			(at 124.46 90.17 0)
+			(at 124.46 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4852,7 +4992,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 125.476 88.646 0)
+			(at 125.476 91.186 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4860,7 +5000,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 124.46 83.82 0)
+			(at 124.46 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4869,7 +5009,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 124.46 83.82 0)
+			(at 124.46 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4878,7 +5018,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 124.46 83.82 0)
+			(at 124.46 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5101,7 +5241,7 @@
 	)
 	(symbol
 		(lib_id "PCM_SL_Devices:Push_Button")
-		(at 116.84 62.23 0)
+		(at 116.84 58.42 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5110,7 +5250,7 @@
 		(fields_autoplaced yes)
 		(uuid "1a8bceb8-b2e2-4aaa-984d-430e8e4e7cda")
 		(property "Reference" "SW1"
-			(at 116.84 54.61 0)
+			(at 116.84 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5118,7 +5258,7 @@
 			)
 		)
 		(property "Value" "ASSIGN"
-			(at 116.84 57.15 0)
+			(at 116.84 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5126,7 +5266,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm"
-			(at 116.713 65.405 0)
+			(at 116.713 61.595 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5135,7 +5275,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 116.84 62.23 0)
+			(at 116.84 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5144,7 +5284,7 @@
 			)
 		)
 		(property "Description" "Common 6mmx6mm Push Button"
-			(at 116.84 62.23 0)
+			(at 116.84 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5563,8 +5703,136 @@
 		)
 	)
 	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 149.86 63.5 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "38ac8e28-21a2-46d7-a6aa-81500d3f1e5a")
+		(property "Reference" "R4"
+			(at 152.4 62.2299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 147.32 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 147.32 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 149.86 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 149.86 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 147.32 71.374 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 147.32 72.898 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 147.32 74.422 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 152.4 64.7699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 149.86 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 149.86 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1f88bfe4-8f38-451d-98c8-f1156acb5375")
+		)
+		(pin "2"
+			(uuid "46d5009a-9391-4cc9-b651-f32da87e4380")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
-		(at 149.86 64.77 0)
+		(at 149.86 67.31 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5572,7 +5840,7 @@
 		(dnp no)
 		(uuid "3fc067ea-cce7-4e9b-8cea-d998835f7893")
 		(property "Reference" "#PWR021"
-			(at 149.86 71.12 0)
+			(at 149.86 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5581,7 +5849,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 150.876 69.596 0)
+			(at 153.67 69.088 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5589,7 +5857,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 64.77 0)
+			(at 149.86 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5598,7 +5866,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 64.77 0)
+			(at 149.86 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5607,7 +5875,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 149.86 64.77 0)
+			(at 149.86 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5622,6 +5890,134 @@
 			(project "MC8P_MINI_KICAD"
 				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
 					(reference "#PWR021")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 124.46 63.5 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "40d25806-48d5-4df8-bc6f-39fca51d6700")
+		(property "Reference" "R3"
+			(at 127 62.2299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 121.92 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 121.92 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 124.46 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 124.46 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 121.92 71.374 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 121.92 72.898 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 121.92 74.422 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 127 64.7699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 124.46 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 124.46 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d1853d34-9519-4944-a6dc-0af3f845f326")
+		)
+		(pin "2"
+			(uuid "4c2338e5-ee36-42d3-afa1-46c48f89b90c")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -5835,7 +6231,7 @@
 	)
 	(symbol
 		(lib_id "PCM_SL_Devices:Push_Button")
-		(at 116.84 81.28 0)
+		(at 116.84 77.47 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5844,7 +6240,7 @@
 		(fields_autoplaced yes)
 		(uuid "5c18dec2-a8e9-4f9f-96cd-bdbe65771da6")
 		(property "Reference" "SW3"
-			(at 116.84 73.66 0)
+			(at 116.84 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5852,7 +6248,7 @@
 			)
 		)
 		(property "Value" "PREV"
-			(at 116.84 76.2 0)
+			(at 116.84 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5860,7 +6256,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm"
-			(at 116.713 84.455 0)
+			(at 116.713 80.645 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5869,7 +6265,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 116.84 81.28 0)
+			(at 116.84 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5878,7 +6274,7 @@
 			)
 		)
 		(property "Description" "Common 6mmx6mm Push Button"
-			(at 116.84 81.28 0)
+			(at 116.84 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6098,7 +6494,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 124.46 64.77 0)
+		(at 124.46 67.31 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6106,7 +6502,7 @@
 		(dnp no)
 		(uuid "73b7eb27-1728-4098-b9b5-f4f71602d8d5")
 		(property "Reference" "#PWR020"
-			(at 124.46 71.12 0)
+			(at 124.46 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6115,7 +6511,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 125.476 69.596 0)
+			(at 127.508 69.342 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6123,7 +6519,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 124.46 64.77 0)
+			(at 124.46 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6132,7 +6528,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 124.46 64.77 0)
+			(at 124.46 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6141,7 +6537,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 124.46 64.77 0)
+			(at 124.46 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6440,6 +6836,134 @@
 			(project "MC8P_MINI_KICAD"
 				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
 					(reference "#PWR07")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 124.46 82.55 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "93d8b58e-262e-422d-a699-ab969b4dcf0c")
+		(property "Reference" "R6"
+			(at 127 81.2799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 121.92 82.55 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 121.92 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 124.46 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 124.46 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 121.92 90.424 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 121.92 91.948 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 121.92 93.472 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 127 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 124.46 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 124.46 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c548ac64-7b3c-4358-9040-4bf62fbbcfa2")
+		)
+		(pin "2"
+			(uuid "0cd827eb-52e9-486c-91cc-53d29a8dbf9b")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -6833,7 +7357,7 @@
 	)
 	(symbol
 		(lib_id "PCM_SL_Devices:Push_Button")
-		(at 142.24 62.23 0)
+		(at 142.24 58.42 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6842,7 +7366,7 @@
 		(fields_autoplaced yes)
 		(uuid "a424dad8-5bbf-4c77-912d-a702b4928da1")
 		(property "Reference" "SW2"
-			(at 142.24 54.61 0)
+			(at 142.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6850,7 +7374,7 @@
 			)
 		)
 		(property "Value" "ENTER"
-			(at 142.24 57.15 0)
+			(at 142.24 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6858,7 +7382,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm"
-			(at 142.113 65.405 0)
+			(at 142.113 61.595 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6867,7 +7391,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 142.24 62.23 0)
+			(at 142.24 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6876,7 +7400,7 @@
 			)
 		)
 		(property "Description" "Common 6mmx6mm Push Button"
-			(at 142.24 62.23 0)
+			(at 142.24 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6894,6 +7418,134 @@
 			(project "MC8P_MINI_KICAD"
 				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
 					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 149.86 82.55 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a6d47aca-6ecc-40fd-bdce-d9b53d89835e")
+		(property "Reference" "R5"
+			(at 152.4 81.2799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 147.32 82.55 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 147.32 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 149.86 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 149.86 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 147.32 90.424 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 147.32 91.948 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 147.32 93.472 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 152.4 83.8199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 149.86 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 149.86 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "65e5645a-c267-46f1-ae9c-4656bc0ddf63")
+		)
+		(pin "2"
+			(uuid "fce39a5b-35d6-453a-90af-b203bcf90321")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -7042,7 +7694,7 @@
 	)
 	(symbol
 		(lib_id "PCM_SL_Devices:Push_Button")
-		(at 142.24 81.28 0)
+		(at 142.24 77.47 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7051,7 +7703,7 @@
 		(fields_autoplaced yes)
 		(uuid "ab2b97b1-10b3-42b2-bd16-cec4d5753d30")
 		(property "Reference" "SW4"
-			(at 142.24 73.66 0)
+			(at 142.24 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7059,7 +7711,7 @@
 			)
 		)
 		(property "Value" "NEXT"
-			(at 142.24 76.2 0)
+			(at 142.24 72.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7067,7 +7719,7 @@
 			)
 		)
 		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm"
-			(at 142.113 84.455 0)
+			(at 142.113 80.645 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7076,7 +7728,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 142.24 81.28 0)
+			(at 142.24 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7085,7 +7737,7 @@
 			)
 		)
 		(property "Description" "Common 6mmx6mm Push Button"
-			(at 142.24 81.28 0)
+			(at 142.24 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7246,7 +7898,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 149.86 83.82 0)
+		(at 149.86 86.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7254,7 +7906,7 @@
 		(dnp no)
 		(uuid "b5a4a794-ac0d-470e-8cfd-c80006243556")
 		(property "Reference" "#PWR023"
-			(at 149.86 90.17 0)
+			(at 149.86 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7263,7 +7915,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 150.876 88.646 0)
+			(at 150.876 91.186 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7271,7 +7923,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 83.82 0)
+			(at 149.86 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7280,7 +7932,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 149.86 83.82 0)
+			(at 149.86 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7289,7 +7941,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 149.86 83.82 0)
+			(at 149.86 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
