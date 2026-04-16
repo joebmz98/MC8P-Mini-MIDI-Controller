@@ -2,7 +2,6 @@
 // MC8P mini             //
 // MIDI Controller       //
 // firmware version 1.0  //
-// Hardware Version: 1.0 //
 // ********************* //
 // controller by         //
 // .axs instruments      //
@@ -10,7 +9,7 @@
 
 // -- LIBRARIES --
 #include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
+#include <Adafruit_GFX.h> 
 #include <MIDI.h>
 #include <Wire.h>
 
@@ -39,6 +38,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define POT_7 6
 #define POT_8 7
 
+// -- BUTTONS --
+#define ASSIGN_BUTTON 2
+#define ENTER_BUTTON 3
+#define PREV_BUTTON 4
+#define NEXT_BUTTON 5
+
 // -- MIDI INSTANCE --
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
@@ -51,14 +56,33 @@ int lastEditedPot = 0;
 unsigned long lastReadTime[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 unsigned long readDelay = 5;  // milliseconds between reads for each pot
 
+// -- POTS
 // 2% threshold in MIDI value terms (2% of 127 = ~2.54, so we'll use 3)
 const int CHANGE_THRESHOLD = 3;  // 2.36% of 127, close enough to 2%
 
+// -- MIDI
 // MIDI Control Change (CC) numbers for each pot
 int midiCC[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };  // Customize these CC numbers as needed
 
+// -- SCREENS --
+enum ScreenState { MAIN_SCREEN,
+                   ASSIGN_SCREEN,
+                   CONFIRM_SCREEN };
+
+ScreenState currentScreen = MAIN_SCREEN;
+
+// -- BUTTONS
+// -- BUTTON DEBOUNCING 
+unsigned long lastButtonPressTime = 0;
+const unsigned long buttonDebounceDelay = 200;  // milliseconds
+bool lastAssignButtonState = HIGH;
+bool lastEnterButtonState = HIGH;
+bool lastPrevButtonState = HIGH;
+bool lastNextButtonState = HIGH;
+
 // -- FUNCTION TO READ MUX CHANNEL --
-int readMUXChannel(int channel) {
+int
+readMUXChannel(int channel) {
   // Set MUX selection pins based on channel (0-7)
   digitalWrite(MUX_S0, channel & 1);
   digitalWrite(MUX_S1, (channel >> 1) & 1);
@@ -85,12 +109,19 @@ void sendMIDICC(int potNumber, int midiValue) {
 
 // -- SETUP --
 void setup() {
+
   // Initialize MUX control pins
   pinMode(MUX_S0, OUTPUT);
   pinMode(MUX_S1, OUTPUT);
   pinMode(MUX_S2, OUTPUT);
   pinMode(MUX_S3, OUTPUT);
   pinMode(MUX_SIG, INPUT);
+
+  // Initialise BUTTONS
+  pinMode(ASSIGN_BUTTON, INPUT);
+  pinMode(ENTER_BUTTON, INPUT);
+  pinMode(PREV_BUTTON, INPUT);
+  pinMode(NEXT_BUTTON, INPUT);
 
   // Initialize MIDI
   MIDI.begin(1);  // Start MIDI on channel 1
@@ -198,14 +229,14 @@ void drawMainScreen(int potNumber, int midiValue) {
   display.setTextWrap(false);
   display.setTextSize(1);
   display.setCursor(50, 8);
-  
+
   // Print pot number (1-8)
   display.print("POT ");
   display.print(potNumber + 1);
 
   display.setTextSize(2);
   display.setCursor(47, 25);
-  
+
   // Print MIDI value (0-127) with leading spaces for consistent positioning
   if (midiValue < 10) {
     display.print("  ");
