@@ -12,6 +12,7 @@
 #include <Adafruit_GFX.h>
 #include <MIDI.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 // -- OLED SETUP --
 #define SCREEN_WIDTH 128
@@ -44,6 +45,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PREV_BUTTON 4
 #define NEXT_BUTTON 5
 
+// -- EEPROM --
+const int EEPROM_ADDRESS = 0;
+
 // -- MIDI INSTANCE --
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
@@ -73,7 +77,9 @@ const unsigned long readDelay = 5;
 const int CHANGE_THRESHOLD = 2;
 
 // -- SCREENS --
-enum ScreenState { MAIN_SCREEN, ASSIGN_SCREEN, CONFIRM_SCREEN };
+enum ScreenState { MAIN_SCREEN,
+                   ASSIGN_SCREEN,
+                   CONFIRM_SCREEN };
 ScreenState currentScreen = MAIN_SCREEN;
 
 // -- ASSIGN SCREEN VARIABLES --
@@ -91,8 +97,38 @@ bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
 bool lastNextButtonState = HIGH;
 
-// MIDI Control Change (CC) numbers for each pot
-int midiCC[8] = { 7, 7, 7, 7, 7, 7, 7, 7 };  // Customize these CC numbers as needed
+// -- TEMP MODE VARIABLES --
+bool tempModeActive = false;
+int storedMidiValues[8]; // Store original values when entering temp mode
+unsigned long enterButtonPressTime = 0;
+const unsigned long longPressTime = 300; // 300ms to detect hold vs click
+
+// -- EEPROM FUNCTIONS --
+// -- SAVE EEPROM
+void saveSettings() {
+  EEPROM.put(EEPROM_ADDRESS, potMessages);
+}
+
+// -- LOAD FROM EEPROM
+void loadSettings() {
+  // We read the data into our array
+  EEPROM.get(EEPROM_ADDRESS, potMessages);
+
+  // Sanity Check: If EEPROM is empty (new chip), it returns 255.
+  // We check if the first channel is within valid range (1-16) or OMNI.
+  // If not, we reset to defaults to avoid weird behavior.
+  if (potMessages[0].channel > 16 && !potMessages[0].omni) {
+    for (int i = 0; i < 8; i++) {
+      potMessages[i].cc = 7;
+      potMessages[i].channel = i + 1;
+      potMessages[i].omni = false;
+      potMessages[i].minValue = 0;
+      potMessages[i].maxValue = 127;
+      potMessages[i].isInverted = false;
+    }
+    saveSettings();  // Save these defaults
+  }
+}
 
 // -- FUNCTION TO READ MUX CHANNEL --
 int readMUXChannel(int channel) {
@@ -108,21 +144,21 @@ int readMUXChannel(int channel) {
 int mapRawToMIDI(int potNumber, int rawValue) {
   uint8_t minVal = potMessages[potNumber].minValue;
   uint8_t maxVal = potMessages[potNumber].maxValue;
-  
+
   // Ensure min is less than max
   if (minVal > maxVal) {
     uint8_t temp = minVal;
     minVal = maxVal;
     maxVal = temp;
   }
-  
+
   int mappedValue;
   if (potMessages[potNumber].isInverted) {
     mappedValue = map(rawValue, 0, 1023, maxVal, minVal);
   } else {
     mappedValue = map(rawValue, 0, 1023, minVal, maxVal);
   }
-  
+
   return constrain(mappedValue, 0, 127);
 }
 
@@ -134,6 +170,37 @@ void sendMIDICC(int potNumber, int midiValue) {
     }
   } else {
     MIDI.sendControlChange(potMessages[potNumber].cc, midiValue, potMessages[potNumber].channel);
+  }
+}
+
+// -- FUNCTION TO ENTER TEMP MODE --
+void enterTempMode() {
+  if (!tempModeActive && currentScreen == MAIN_SCREEN) {
+    tempModeActive = true;
+    // Store current MIDI values
+    for (int i = 0; i < 8; i++) {
+      storedMidiValues[i] = lastMidiValues[i];
+    }
+    // Invert display for visual feedback
+    display.invertDisplay(true);
+  }
+}
+
+// -- FUNCTION TO EXIT TEMP MODE --
+void exitTempMode() {
+  if (tempModeActive) {
+    tempModeActive = false;
+    // Restore original MIDI values
+    for (int i = 0; i < 8; i++) {
+      if (lastMidiValues[i] != storedMidiValues[i]) {
+        lastMidiValues[i] = storedMidiValues[i];
+        sendMIDICC(i, storedMidiValues[i]);
+      }
+    }
+    // Restore display
+    display.invertDisplay(false);
+    // Redraw main screen with restored values
+    drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
   }
 }
 
@@ -156,6 +223,7 @@ void readButtons() {
         lastFlashTime = currentTime;
         drawAssignScreen();
       } else {
+        saveSettings();  // SAVE ON EXIT
         currentScreen = MAIN_SCREEN;
         drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
       }
@@ -285,15 +353,15 @@ void handlePot8Editing() {
 
   // Read Pot 8 (Mux Channel 7)
   int pot8Raw = readMUXChannel(7);
-  
-  // Use a higher threshold for Pot 8 to prevent screen flickering 
+
+  // Use a higher threshold for Pot 8 to prevent screen flickering
   // while you are navigating other menus
-  if (abs(pot8Raw - lastRawValues[7]) > 10) { 
+  if (abs(pot8Raw - lastRawValues[7]) > 10) {
     lastRawValues[7] = pot8Raw;
     bool valueChanged = false;
 
     switch (assignEditMode) {
-      case 0: // Select Pot (0-7)
+      case 0:  // Select Pot (0-7)
         {
           int newPot = map(pot8Raw, 0, 1023, 0, 7);
           if (newPot != selectedPot) {
@@ -303,25 +371,25 @@ void handlePot8Editing() {
         }
         break;
 
-      case 1: // Channel (1-16 + OMNI)
+      case 1:  // Channel (1-16 + OMNI)
         {
           int newVal = map(pot8Raw, 0, 1023, 1, 17);
           if (newVal == 17) {
-             if (!potMessages[selectedPot].omni) {
-               potMessages[selectedPot].omni = true;
-               valueChanged = true;
-             }
+            if (!potMessages[selectedPot].omni) {
+              potMessages[selectedPot].omni = true;
+              valueChanged = true;
+            }
           } else {
-             if (potMessages[selectedPot].omni || potMessages[selectedPot].channel != newVal) {
-               potMessages[selectedPot].omni = false;
-               potMessages[selectedPot].channel = newVal;
-               valueChanged = true;
-             }
+            if (potMessages[selectedPot].omni || potMessages[selectedPot].channel != newVal) {
+              potMessages[selectedPot].omni = false;
+              potMessages[selectedPot].channel = newVal;
+              valueChanged = true;
+            }
           }
         }
         break;
 
-      case 2: // CC (0-127)
+      case 2:  // CC (0-127)
         {
           int newCC = map(pot8Raw, 0, 1023, 0, 127);
           if (newCC != potMessages[selectedPot].cc) {
@@ -331,7 +399,7 @@ void handlePot8Editing() {
         }
         break;
 
-      case 3: // Min Value (0-127)
+      case 3:  // Min Value (0-127)
         {
           int newMin = map(pot8Raw, 0, 1023, 0, 127);
           if (newMin != potMessages[selectedPot].minValue) {
@@ -341,7 +409,7 @@ void handlePot8Editing() {
         }
         break;
 
-      case 4: // Max Value (0-127)
+      case 4:  // Max Value (0-127)
         {
           int newMax = map(pot8Raw, 0, 1023, 0, 127);
           if (newMax != potMessages[selectedPot].maxValue) {
@@ -351,7 +419,7 @@ void handlePot8Editing() {
         }
         break;
 
-      case 5: // Direction (NOR/INV)
+      case 5:  // Direction (NOR/INV)
         {
           bool newInv = (pot8Raw > 512);
           if (newInv != potMessages[selectedPot].isInverted) {
@@ -404,8 +472,12 @@ void setup() {
 
   // Initialize display
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    for (;;);
+    for (;;)
+      ;
   }
+
+  // -- LOAD SETTINGS --
+  loadSettings();
 
   drawLoadingScreen();
   delay(2000);
@@ -441,7 +513,7 @@ void loop() {
     if ((currentTime - lastReadTime[pot]) > readDelay) {
       int rawValue = readMUXChannel(pot);
       int midiValue = mapRawToMIDI(pot, rawValue);
-      
+
       if (abs(midiValue - lastMidiValues[pot]) >= CHANGE_THRESHOLD) {
         lastRawValues[pot] = rawValue;
         lastMidiValues[pot] = midiValue;
@@ -557,10 +629,10 @@ void drawAssignScreen() {
   display.setCursor(8, 30);
   if (assignEditMode == 1) display.print(F("CH ["));
   else display.print(F("CH "));
-  
+
   if (potMessages[selectedPot].omni) display.print(F("OMNI"));
   else display.print(potMessages[selectedPot].channel);
-  
+
   if (assignEditMode == 1) display.print(F("]"));
   else display.print(F("   "));
 
@@ -568,9 +640,9 @@ void drawAssignScreen() {
   display.setCursor(8, 42);
   if (assignEditMode == 2) display.print(F("CC ["));
   else display.print(F("CC "));
-  
+
   display.print(potMessages[selectedPot].cc);
-  
+
   if (assignEditMode == 2) display.print(F("]"));
   else display.print(F("   "));
 
@@ -578,7 +650,7 @@ void drawAssignScreen() {
   display.setCursor(66, 30);
   if (assignEditMode == 3) display.print(F("MIN ["));
   else if (assignEditMode == 4) display.print(F("MAX ["));
-  
+
   if (assignEditMode == 3) display.print(potMessages[selectedPot].minValue);
   else if (assignEditMode == 4) display.print(potMessages[selectedPot].maxValue);
   else {
@@ -586,17 +658,17 @@ void drawAssignScreen() {
     display.print(F("-"));
     display.print(potMessages[selectedPot].maxValue);
   }
-  
+
   if (assignEditMode == 3 || assignEditMode == 4) display.print(F("]"));
 
   // Direction display
   display.setCursor(66, 42);
   if (assignEditMode == 5) display.print(F("DIR ["));
   else display.print(F("DIR "));
-  
+
   if (potMessages[selectedPot].isInverted) display.print(F("INV"));
   else display.print(F("NOR"));
-  
+
   if (assignEditMode == 5) display.print(F("]"));
 
   display.display();
