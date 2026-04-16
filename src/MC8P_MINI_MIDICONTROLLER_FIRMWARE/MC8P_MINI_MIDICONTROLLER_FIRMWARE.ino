@@ -49,80 +49,87 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
 // -- MIDI STRUCT
 struct MIDIMessage {
-  int cc = 7;
-  int channel = 1;
-  bool omni = false;  // OMNI mode flag
+  uint8_t cc = 7;
+  uint8_t channel = 1;
+  bool omni = false;
+  uint8_t minValue = 0;
+  uint8_t maxValue = 127;
+  bool isInverted = false;
 };
 
-MIDIMessage potMessages[8]; // 8 pots, each with its own MIDI message
-int activeMessages[8] = {1, 1, 1, 1, 1, 1, 1, 1}; // How many CCs each pot has
+MIDIMessage potMessages[8];
 
 // -- FIRMWARE VERSION --
-const char* FIRMWARE_VERSION = "1.0";
+const char FIRMWARE_VERSION[] = "1.0";
 
 // -- VARIABLES --
-int lastPotValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int lastRawValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int lastMidiValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 int lastEditedPot = 0;
 unsigned long lastReadTime[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-unsigned long readDelay = 5;  // milliseconds between reads for each pot
+const unsigned long readDelay = 5;
 
-// -- POTS
-// 2% threshold in MIDI value terms (2% of 127 = ~2.54, so we'll use 3)
-const int CHANGE_THRESHOLD = 3;  // 2.36% of 127, close enough to 2%
+// Fixed threshold for stability (2% of 127 = ~3)
+const int CHANGE_THRESHOLD = 3;
 
 // -- SCREENS --
-enum ScreenState { MAIN_SCREEN,
-                   ASSIGN_SCREEN,
-                   CONFIRM_SCREEN };
-
+enum ScreenState { MAIN_SCREEN, ASSIGN_SCREEN, CONFIRM_SCREEN };
 ScreenState currentScreen = MAIN_SCREEN;
 
 // -- ASSIGN SCREEN VARIABLES --
-int selectedPot = 0;     // Currently selected pot (0-7)
-int assignEditMode = 0;  // 0 = selecting pot, 1 = editing Channel, 2 = editing CC
+int selectedPot = 0;
+int assignEditMode = 0;
 unsigned long lastFlashTime = 0;
-const unsigned long flashInterval = 500;  // Flash every 500ms
-bool showPotNumber = true;                // For flashing effect
+const unsigned long flashInterval = 500;
+bool showPotNumber = true;
 
-// -- BUTTONS
-// -- BUTTON DEBOUNCING
+// -- BUTTON DEBOUNCING --
 unsigned long lastButtonPressTime = 0;
-const unsigned long buttonDebounceDelay = 200;  // milliseconds
-bool lastAssignButtonState = LOW;
+const unsigned long buttonDebounceDelay = 200;
+bool lastAssignButtonState = HIGH;
 bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
 bool lastNextButtonState = HIGH;
 
 // -- FUNCTION TO READ MUX CHANNEL --
 int readMUXChannel(int channel) {
-  // Set MUX selection pins based on channel (0-7)
   digitalWrite(MUX_S0, channel & 1);
   digitalWrite(MUX_S1, (channel >> 1) & 1);
   digitalWrite(MUX_S2, (channel >> 2) & 1);
   digitalWrite(MUX_S3, (channel >> 3) & 1);
-
-  // Small delay for MUX to settle
   delayMicroseconds(10);
-
-  // Read analog value (0-1023)
   return analogRead(MUX_SIG);
 }
 
-// -- FUNCTION TO UPDATE DISPLAY --
-void updateDisplay(int potNumber, int midiValue) {
-  drawMainScreen(potNumber, midiValue);
+// -- FUNCTION TO MAP RAW VALUE TO MIDI VALUE --
+int mapRawToMIDI(int potNumber, int rawValue) {
+  uint8_t minVal = potMessages[potNumber].minValue;
+  uint8_t maxVal = potMessages[potNumber].maxValue;
+  
+  // Ensure min is less than max
+  if (minVal > maxVal) {
+    uint8_t temp = minVal;
+    minVal = maxVal;
+    maxVal = temp;
+  }
+  
+  int mappedValue;
+  if (potMessages[potNumber].isInverted) {
+    mappedValue = map(rawValue, 0, 1023, maxVal, minVal);
+  } else {
+    mappedValue = map(rawValue, 0, 1023, minVal, maxVal);
+  }
+  
+  return constrain(mappedValue, 0, 127);
 }
 
 // -- FUNCTION TO SEND MIDI CC MESSAGE --
 void sendMIDICC(int potNumber, int midiValue) {
-  // Send MIDI Control Change message based on the pot's configuration
   if (potMessages[potNumber].omni) {
-    // OMNI mode: send to all 16 channels
     for (int ch = 1; ch <= 16; ch++) {
       MIDI.sendControlChange(potMessages[potNumber].cc, midiValue, ch);
     }
   } else {
-    // Normal mode: send to specific channel
     MIDI.sendControlChange(potMessages[potNumber].cc, midiValue, potMessages[potNumber].channel);
   }
 }
@@ -131,138 +138,243 @@ void sendMIDICC(int potNumber, int midiValue) {
 void readButtons() {
   unsigned long currentTime = millis();
 
-  // BUTTON STATES
   bool assignButtonState = digitalRead(ASSIGN_BUTTON);
   bool enterButtonState = digitalRead(ENTER_BUTTON);
   bool prevButtonState = digitalRead(PREV_BUTTON);
   bool nextButtonState = digitalRead(NEXT_BUTTON);
 
   // ASSIGN BUTTON
-  if (assignButtonState == HIGH && lastAssignButtonState == LOW) {
+  if (assignButtonState == LOW && lastAssignButtonState == HIGH) {
     if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
-
       if (currentScreen == MAIN_SCREEN) {
         currentScreen = ASSIGN_SCREEN;
-        selectedPot = lastEditedPot;  // Start with last edited pot
-        assignEditMode = 0;           // Start in pot selection mode
+        selectedPot = lastEditedPot;
+        assignEditMode = 0;
         lastFlashTime = currentTime;
         drawAssignScreen();
       } else {
         currentScreen = MAIN_SCREEN;
-        drawMainScreen(lastEditedPot, lastPotValues[lastEditedPot]);
+        drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
       }
-
       lastButtonPressTime = currentTime;
     }
   }
+  lastAssignButtonState = assignButtonState;
 
-  // ENTER BUTTON - Cycle through edit modes (0->1->2->0)
-  if (enterButtonState == HIGH && lastEnterButtonState == LOW) {
+  // Only process other buttons in ASSIGN_SCREEN
+  if (currentScreen != ASSIGN_SCREEN) {
+    lastEnterButtonState = enterButtonState;
+    lastPrevButtonState = prevButtonState;
+    lastNextButtonState = nextButtonState;
+    return;
+  }
+
+  // ENTER BUTTON
+  if (enterButtonState == LOW && lastEnterButtonState == HIGH) {
     if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
-
-      if (currentScreen == ASSIGN_SCREEN) {
-        assignEditMode = (assignEditMode + 1) % 3;  // Cycle: 0->1->2->0
-        drawAssignScreen();                         // Refresh screen to show new mode
-      }
-
+      assignEditMode = (assignEditMode + 1) % 6;
+      drawAssignScreen();
       lastButtonPressTime = currentTime;
     }
   }
+  lastEnterButtonState = enterButtonState;
 
   // PREV BUTTON
-  if (prevButtonState == HIGH && lastPrevButtonState == LOW) {
+  if (prevButtonState == LOW && lastPrevButtonState == HIGH) {
     if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
-
-      if (currentScreen == ASSIGN_SCREEN) {
-        if (assignEditMode == 0) {
-          // Selecting pot - go to previous pot
-          selectedPot = (selectedPot - 1 + 8) % 8;
-          drawAssignScreen();
-        } else if (assignEditMode == 1) {
-          // Editing Channel - cycle through: 1-16, then OMNI
-          if (potMessages[selectedPot].omni) {
-            // If OMNI is on, turn it off and go to channel 16
-            potMessages[selectedPot].omni = false;
-            potMessages[selectedPot].channel = 16;
+      if (assignEditMode == 0) {
+        selectedPot = (selectedPot - 1 + 8) % 8;
+        drawAssignScreen();
+      } else if (assignEditMode == 1) {
+        if (potMessages[selectedPot].omni) {
+          potMessages[selectedPot].omni = false;
+          potMessages[selectedPot].channel = 16;
+        } else {
+          if (potMessages[selectedPot].channel > 1) {
+            potMessages[selectedPot].channel--;
           } else {
-            // Decrease channel (1-16)
-            if (potMessages[selectedPot].channel > 1) {
-              potMessages[selectedPot].channel--;
-            } else {
-              // At channel 1, going previous enables OMNI
-              potMessages[selectedPot].omni = true;
-            }
+            potMessages[selectedPot].omni = true;
           }
-          drawAssignScreen();
-        } else if (assignEditMode == 2) {
-          // Editing CC - decrease CC value (0-127)
-          if (potMessages[selectedPot].cc > 0) {
-            potMessages[selectedPot].cc--;
-          } else {
-            potMessages[selectedPot].cc = 127; // Wrap around
-          }
-          drawAssignScreen();
         }
+        drawAssignScreen();
+      } else if (assignEditMode == 2) {
+        if (potMessages[selectedPot].cc > 0) {
+          potMessages[selectedPot].cc--;
+        } else {
+          potMessages[selectedPot].cc = 127;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 3) {
+        if (potMessages[selectedPot].minValue > 0) {
+          potMessages[selectedPot].minValue--;
+        } else {
+          potMessages[selectedPot].minValue = 127;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 4) {
+        if (potMessages[selectedPot].maxValue > 0) {
+          potMessages[selectedPot].maxValue--;
+        } else {
+          potMessages[selectedPot].maxValue = 127;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 5) {
+        potMessages[selectedPot].isInverted = !potMessages[selectedPot].isInverted;
+        drawAssignScreen();
       }
-
       lastButtonPressTime = currentTime;
     }
   }
+  lastPrevButtonState = prevButtonState;
 
   // NEXT BUTTON
-  if (nextButtonState == HIGH && lastNextButtonState == LOW) {
+  if (nextButtonState == LOW && lastNextButtonState == HIGH) {
     if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
-
-      if (currentScreen == ASSIGN_SCREEN) {
-        if (assignEditMode == 0) {
-          // Selecting pot - go to next pot
-          selectedPot = (selectedPot + 1) % 8;
-          drawAssignScreen();
-        } else if (assignEditMode == 1) {
-          // Editing Channel - cycle through: OMNI, then 1-16
-          if (potMessages[selectedPot].omni) {
-            // If OMNI is on, turn it off and go to channel 1
-            potMessages[selectedPot].omni = false;
-            potMessages[selectedPot].channel = 1;
+      if (assignEditMode == 0) {
+        selectedPot = (selectedPot + 1) % 8;
+        drawAssignScreen();
+      } else if (assignEditMode == 1) {
+        if (potMessages[selectedPot].omni) {
+          potMessages[selectedPot].omni = false;
+          potMessages[selectedPot].channel = 1;
+        } else {
+          if (potMessages[selectedPot].channel < 16) {
+            potMessages[selectedPot].channel++;
           } else {
-            // Increase channel (1-16)
-            if (potMessages[selectedPot].channel < 16) {
-              potMessages[selectedPot].channel++;
-            } else {
-              // At channel 16, going next enables OMNI
-              potMessages[selectedPot].omni = true;
-            }
+            potMessages[selectedPot].omni = true;
           }
-          drawAssignScreen();
-        } else if (assignEditMode == 2) {
-          // Editing CC - increase CC value (0-127)
-          if (potMessages[selectedPot].cc < 127) {
-            potMessages[selectedPot].cc++;
-          } else {
-            potMessages[selectedPot].cc = 0; // Wrap around
-          }
-          drawAssignScreen();
         }
+        drawAssignScreen();
+      } else if (assignEditMode == 2) {
+        if (potMessages[selectedPot].cc < 127) {
+          potMessages[selectedPot].cc++;
+        } else {
+          potMessages[selectedPot].cc = 0;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 3) {
+        if (potMessages[selectedPot].minValue < 127) {
+          potMessages[selectedPot].minValue++;
+        } else {
+          potMessages[selectedPot].minValue = 0;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 4) {
+        if (potMessages[selectedPot].maxValue < 127) {
+          potMessages[selectedPot].maxValue++;
+        } else {
+          potMessages[selectedPot].maxValue = 0;
+        }
+        drawAssignScreen();
+      } else if (assignEditMode == 5) {
+        potMessages[selectedPot].isInverted = !potMessages[selectedPot].isInverted;
+        drawAssignScreen();
       }
-
       lastButtonPressTime = currentTime;
     }
   }
-
-  // UPDATE LAST BUTTON STATES
-  lastAssignButtonState = assignButtonState;
-  lastEnterButtonState = enterButtonState;
-  lastPrevButtonState = prevButtonState;
   lastNextButtonState = nextButtonState;
+}
+
+// -- EDIT PARAMETER WITH POT 8
+void handlePot8Editing() {
+  if (currentScreen != ASSIGN_SCREEN) return;
+
+  // Read Pot 8 (Mux Channel 7)
+  int pot8Raw = readMUXChannel(7);
+  
+  // Use a higher threshold for Pot 8 to prevent screen flickering 
+  // while you are navigating other menus
+  if (abs(pot8Raw - lastRawValues[7]) > 10) { 
+    lastRawValues[7] = pot8Raw;
+    bool valueChanged = false;
+
+    switch (assignEditMode) {
+      case 0: // Select Pot (0-7)
+        {
+          int newPot = map(pot8Raw, 0, 1023, 0, 7);
+          if (newPot != selectedPot) {
+            selectedPot = newPot;
+            valueChanged = true;
+          }
+        }
+        break;
+
+      case 1: // Channel (1-16 + OMNI)
+        {
+          int newVal = map(pot8Raw, 0, 1023, 1, 17);
+          if (newVal == 17) {
+             if (!potMessages[selectedPot].omni) {
+               potMessages[selectedPot].omni = true;
+               valueChanged = true;
+             }
+          } else {
+             if (potMessages[selectedPot].omni || potMessages[selectedPot].channel != newVal) {
+               potMessages[selectedPot].omni = false;
+               potMessages[selectedPot].channel = newVal;
+               valueChanged = true;
+             }
+          }
+        }
+        break;
+
+      case 2: // CC (0-127)
+        {
+          int newCC = map(pot8Raw, 0, 1023, 0, 127);
+          if (newCC != potMessages[selectedPot].cc) {
+            potMessages[selectedPot].cc = newCC;
+            valueChanged = true;
+          }
+        }
+        break;
+
+      case 3: // Min Value (0-127)
+        {
+          int newMin = map(pot8Raw, 0, 1023, 0, 127);
+          if (newMin != potMessages[selectedPot].minValue) {
+            potMessages[selectedPot].minValue = newMin;
+            valueChanged = true;
+          }
+        }
+        break;
+
+      case 4: // Max Value (0-127)
+        {
+          int newMax = map(pot8Raw, 0, 1023, 0, 127);
+          if (newMax != potMessages[selectedPot].maxValue) {
+            potMessages[selectedPot].maxValue = newMax;
+            valueChanged = true;
+          }
+        }
+        break;
+
+      case 5: // Direction (NOR/INV)
+        {
+          bool newInv = (pot8Raw > 512);
+          if (newInv != potMessages[selectedPot].isInverted) {
+            potMessages[selectedPot].isInverted = newInv;
+            valueChanged = true;
+          }
+        }
+        break;
+    }
+
+    if (valueChanged) {
+      drawAssignScreen();
+    }
+  }
 }
 
 // -- SETUP --
 void setup() {
   // Initialize pot messages with default values
   for (int i = 0; i < 8; i++) {
-    potMessages[i].cc = 7;           // Default CC #7 (Volume)
-    potMessages[i].channel = i + 1;  // Channels 1-8
-    potMessages[i].omni = false;     // OMNI off by default
+    potMessages[i].cc = 7;
+    potMessages[i].channel = i + 1;
+    potMessages[i].omni = false;
+    potMessages[i].minValue = 0;
+    potMessages[i].maxValue = 127;
+    potMessages[i].isInverted = false;
   }
 
   // Initialize MUX control pins
@@ -272,11 +384,16 @@ void setup() {
   pinMode(MUX_S3, OUTPUT);
   pinMode(MUX_SIG, INPUT);
 
-  // Initialise BUTTONS with INPUT_PULLUP
+  // Initialize BUTTONS with INPUT_PULLUP
   pinMode(ASSIGN_BUTTON, INPUT_PULLUP);
   pinMode(ENTER_BUTTON, INPUT_PULLUP);
   pinMode(PREV_BUTTON, INPUT_PULLUP);
   pinMode(NEXT_BUTTON, INPUT_PULLUP);
+
+  lastAssignButtonState = digitalRead(ASSIGN_BUTTON);
+  lastEnterButtonState = digitalRead(ENTER_BUTTON);
+  lastPrevButtonState = digitalRead(PREV_BUTTON);
+  lastNextButtonState = digitalRead(NEXT_BUTTON);
 
   // Initialize MIDI
   MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -284,8 +401,7 @@ void setup() {
 
   // Initialize display
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    for (;;)
-      ;  // Don't proceed, loop forever
+    for (;;);
   }
 
   drawLoadingScreen();
@@ -294,14 +410,14 @@ void setup() {
   // Read initial pot values
   for (int i = 0; i < 8; i++) {
     int rawValue = readMUXChannel(i);
-    lastPotValues[i] = map(rawValue, 0, 1023, 0, 127);
-    sendMIDICC(i, lastPotValues[i]);
+    lastRawValues[i] = rawValue;
+    lastMidiValues[i] = mapRawToMIDI(i, rawValue);
+    sendMIDICC(i, lastMidiValues[i]);
     delay(10);
   }
 
-  // Show initial display
   currentScreen = MAIN_SCREEN;
-  updateDisplay(0, lastPotValues[0]);
+  drawMainScreen(0, lastMidiValues[0]);
 }
 
 // -- LOOP --
@@ -311,23 +427,23 @@ void loop() {
     unsigned long currentTime = millis();
     if ((currentTime - lastFlashTime) > flashInterval) {
       showPotNumber = !showPotNumber;
-      drawAssignScreen();  // Refresh to show/hide pot number
+      drawAssignScreen();
       lastFlashTime = currentTime;
     }
   }
 
-  // Read potentiometers
-  for (int pot = 0; pot < 8; pot++) {
+  // Read potentiometers 1-7
+  for (int pot = 0; pot < 7; pot++) {
     unsigned long currentTime = millis();
     if ((currentTime - lastReadTime[pot]) > readDelay) {
       int rawValue = readMUXChannel(pot);
-      int midiValue = map(rawValue, 0, 1023, 0, 127);
-
-      if (abs(midiValue - lastPotValues[pot]) >= CHANGE_THRESHOLD) {
-        lastPotValues[pot] = midiValue;
+      int midiValue = mapRawToMIDI(pot, rawValue);
+      
+      if (abs(midiValue - lastMidiValues[pot]) >= CHANGE_THRESHOLD) {
+        lastRawValues[pot] = rawValue;
+        lastMidiValues[pot] = midiValue;
         lastEditedPot = pot;
 
-        // Only send MIDI message if we're on MAIN_SCREEN
         if (currentScreen == MAIN_SCREEN) {
           sendMIDICC(pot, midiValue);
           drawMainScreen(lastEditedPot, midiValue);
@@ -337,18 +453,32 @@ void loop() {
     }
   }
 
+  // Handle Pot 8 specifically
+  if (currentScreen == ASSIGN_SCREEN) {
+    handlePot8Editing();
+  } else {
+    // Standard MIDI behavior for Pot 8 when on Main Screen
+    int rawValue = readMUXChannel(7);
+    int midiValue = mapRawToMIDI(7, rawValue);
+    if (abs(midiValue - lastMidiValues[7]) >= CHANGE_THRESHOLD) {
+      lastRawValues[7] = rawValue;
+      lastMidiValues[7] = midiValue;
+      lastEditedPot = 7;
+      sendMIDICC(7, midiValue);
+      drawMainScreen(7, midiValue);
+    }
+  }
+
   readButtons();
-  delay(5);
+  delay(2);
 }
 
 // -- DISPLAY SCREENS --
-// -- LOADING SCREEN
 void drawLoadingScreen() {
   display.clearDisplay();
   display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(2);
-  display.setTextWrap(false);
   display.setCursor(41, 14);
   display.print(F("MC8P"));
   display.setTextSize(1);
@@ -359,7 +489,6 @@ void drawLoadingScreen() {
   display.display();
 }
 
-// -- MAIN SCREEN
 void drawMainScreen(int potNumber, int midiValue) {
   display.clearDisplay();
   display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
@@ -371,7 +500,6 @@ void drawMainScreen(int potNumber, int midiValue) {
   }
 
   display.setTextColor(SSD1306_WHITE);
-  display.setTextWrap(false);
   display.setTextSize(1);
   display.setCursor(50, 8);
   display.print(F("POT "));
@@ -393,14 +521,12 @@ void drawMainScreen(int potNumber, int midiValue) {
   display.display();
 }
 
-// -- ASSIGN SCREEN
 void drawAssignScreen() {
   display.clearDisplay();
   display.setTextSize(1);
 
   display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
   display.setTextColor(SSD1306_WHITE);
-  display.setTextWrap(false);
 
   // Title
   display.setCursor(8, 5);
@@ -408,71 +534,67 @@ void drawAssignScreen() {
 
   // Show current edit mode
   display.setCursor(8, 17);
-  if (assignEditMode == 0) {
-    display.print(F("SELECT POT"));
-  } else if (assignEditMode == 1) {
-    display.print(F("EDIT CHANNEL"));
-  } else {
-    display.print(F("EDIT CC"));
-  }
+  if (assignEditMode == 0) display.print(F("SELECT POT"));
+  else if (assignEditMode == 1) display.print(F("EDIT CHANNEL"));
+  else if (assignEditMode == 2) display.print(F("EDIT CC"));
+  else if (assignEditMode == 3) display.print(F("EDIT MIN"));
+  else if (assignEditMode == 4) display.print(F("EDIT MAX"));
+  else display.print(F("EDIT DIR"));
 
-  // Pot number with flashing effect
+  // Pot number
   display.setCursor(93, 5);
-  if (assignEditMode == 0) {
-    // Flashing effect for pot selection
-    if (showPotNumber) {
-      display.print(F("POT "));
-      display.print(selectedPot + 1);
-    } else {
-      display.print(F("     "));  // Clear the area (5 spaces)
-    }
+  if (assignEditMode == 0 && !showPotNumber) {
+    display.print(F("     "));
   } else {
-    // Solid display when editing
     display.print(F("POT "));
     display.print(selectedPot + 1);
   }
 
-  // Channel display 
+  // Channel display
   display.setCursor(8, 30);
-  if (assignEditMode == 1) {
-    // Highlight Channel when editing
-    display.print(F("CH ["));
-    if (potMessages[selectedPot].omni) {
-      display.print(F("OMNI"));
-    } else {
-      display.print(potMessages[selectedPot].channel);
-    }
-    display.print(F("]"));
-  } else {
-    display.print(F("CH "));
-    if (potMessages[selectedPot].omni) {
-      display.print(F("OMNI"));
-    } else {
-      display.print(potMessages[selectedPot].channel);
-    }
-    display.print(F("   "));  // Padding
-  }
+  if (assignEditMode == 1) display.print(F("CH ["));
+  else display.print(F("CH "));
+  
+  if (potMessages[selectedPot].omni) display.print(F("OMNI"));
+  else display.print(potMessages[selectedPot].channel);
+  
+  if (assignEditMode == 1) display.print(F("]"));
+  else display.print(F("   "));
 
-  // CC value display 
+  // CC display
   display.setCursor(8, 42);
-  display.print(F("CC "));
-  if (assignEditMode == 2) {
-    // Highlight CC value when editing
-    display.print(F("["));
-    display.print(potMessages[selectedPot].cc);
-    display.print(F("]"));
-  } else {
-    display.print(potMessages[selectedPot].cc);
-    display.print(F("   "));  // Padding
-  }
+  if (assignEditMode == 2) display.print(F("CC ["));
+  else display.print(F("CC "));
+  
+  display.print(potMessages[selectedPot].cc);
+  
+  if (assignEditMode == 2) display.print(F("]"));
+  else display.print(F("   "));
 
   // Range display
   display.setCursor(66, 30);
-  display.print(F("0-127"));
+  if (assignEditMode == 3) display.print(F("MIN ["));
+  else if (assignEditMode == 4) display.print(F("MAX ["));
+  
+  if (assignEditMode == 3) display.print(potMessages[selectedPot].minValue);
+  else if (assignEditMode == 4) display.print(potMessages[selectedPot].maxValue);
+  else {
+    display.print(potMessages[selectedPot].minValue);
+    display.print(F("-"));
+    display.print(potMessages[selectedPot].maxValue);
+  }
+  
+  if (assignEditMode == 3 || assignEditMode == 4) display.print(F("]"));
 
   // Direction display
   display.setCursor(66, 42);
-  display.print(F("NOR")); // NOR == Normal (low to high) // INV == Inverted (high to low)
+  if (assignEditMode == 5) display.print(F("DIR ["));
+  else display.print(F("DIR "));
+  
+  if (potMessages[selectedPot].isInverted) display.print(F("INV"));
+  else display.print(F("NOR"));
+  
+  if (assignEditMode == 5) display.print(F("]"));
 
   display.display();
 }
