@@ -104,6 +104,7 @@ bool tempModeActive = false;
 int storedMidiValues[8];  // Store original values when entering temp mode
 unsigned long enterButtonPressTime = 0;
 const unsigned long longPressTime = 300;  // 300ms to detect hold vs click
+bool catchupModeActive = false;
 
 // -- EEPROM FUNCTIONS --
 // -- SAVE EEPROM
@@ -175,63 +176,102 @@ void sendMIDICC(int potNumber, int midiValue) {
   }
 }
 
-// -- FUNCTION TO ENTER TEMP MODE (DEBUG VERSION) --
+// -- FUNCTION TO ENTER TEMP MODE --
 void enterTempMode() {
-  //Serial.println(F("enterTempMode() called"));
   if (!tempModeActive && currentScreen == MAIN_SCREEN) {
-    //Serial.println(F("Conditions met, entering temp mode"));
     tempModeActive = true;
-    // Store current MIDI values
+
+    // Store the current MIDI values (these are the values we'll return to)
     for (int i = 0; i < 8; i++) {
       storedMidiValues[i] = lastMidiValues[i];
-      /*
-      Serial.print(F("Stored pot "));
-      Serial.print(i);
-      Serial.print(F(": "));
-      Serial.println(storedMidiValues[i]);
-      */
     }
+
+    // Also store the current raw values to know where the pots physically are
+    for (int i = 0; i < 8; i++) {
+      lastRawValues[i] = readMUXChannel(i);
+    }
+
     // Invert display for visual feedback
     display.invertDisplay(true);
-    //Serial.println(F("Display inverted"));
-  } else {
-    /*
-    Serial.print(F("Cannot enter temp mode. tempModeActive="));
-    Serial.print(tempModeActive);
-    Serial.print(F(", currentScreen="));
-    Serial.println(currentScreen);
-    */
   }
 }
 
-// -- FUNCTION TO EXIT TEMP MODE (DEBUG VERSION) --
+// -- FUNCTION TO EXIT TEMP MODE --
 void exitTempMode() {
-  //Serial.println(F("exitTempMode() called"));
   if (tempModeActive) {
-    //Serial.println(F("Exiting temp mode"));
     tempModeActive = false;
-    // Restore original MIDI values
-    for (int i = 0; i < 8; i++) {
-      if (lastMidiValues[i] != storedMidiValues[i]) {
-        /*
-        Serial.print(F("Restoring pot "));
-        Serial.print(i);
-        Serial.print(F(" from "));
-        Serial.print(lastMidiValues[i]);
-        Serial.print(F(" to "));
-        Serial.println(storedMidiValues[i]);
-        */
-        lastMidiValues[i] = storedMidiValues[i];
-        sendMIDICC(i, storedMidiValues[i]);
-      }
-    }
+    
+    // Activate catch-up mode
+    catchupModeActive = true;
+    
     // Restore display
     display.invertDisplay(false);
-    //Serial.println(F("Display restored to normal"));
-    // Redraw main screen with restored values
+    
+    // Force lastMidiValues to the stored values (what we want to return to)
+    // This ensures the display shows the target values
+    for (int i = 0; i < 8; i++) {
+      lastMidiValues[i] = storedMidiValues[i];
+    }
+    
+    // Send the stored MIDI values immediately (this jumps back to original state)
+    for (int i = 0; i < 8; i++) {
+      sendMIDICC(i, storedMidiValues[i]);
+    }
+    
+    // Redraw main screen with the stored values
     drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
-  } else {
-    //Serial.println(F("Cannot exit temp mode - not active"));
+  }
+}
+
+// -- FUNCTION TO HANDLE CATCH-UP AFTER TEMP MODE --
+void handleCatchup() {
+  if (!catchupModeActive) return;
+  
+  bool allCaughtUp = true;
+  
+  // Check each pot to see if it's caught up to its stored value
+  for (int i = 0; i < 8; i++) {
+    // Read the current physical position of the pot
+    int rawValue = readMUXChannel(i);
+    int currentPhysicalValue = mapRawToMIDI(i, rawValue);
+    int targetValue = storedMidiValues[i];
+    
+    // Has the physical pot reached the target value?
+    bool hasReachedTarget = false;
+    
+    // Check if the physical pot position matches the target value
+    // We need to allow for a small tolerance because of analog readings
+    if (abs(currentPhysicalValue - targetValue) <= CHANGE_THRESHOLD) {
+      hasReachedTarget = true;
+    }
+    
+    if (hasReachedTarget) {
+      // This pot has caught up - update lastMidiValues to the physical value
+      lastMidiValues[i] = currentPhysicalValue;
+      lastRawValues[i] = rawValue;
+      
+      // Send the current MIDI value (which is now the target value)
+      sendMIDICC(i, currentPhysicalValue);
+      
+      // Update display if this is the last edited pot
+      if (i == lastEditedPot && currentScreen == MAIN_SCREEN) {
+        drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
+      }
+    } else {
+      // This pot hasn't caught up yet
+      allCaughtUp = false;
+      
+      // IMPORTANT: Force lastMidiValues[i] to stay at the target value
+      // This prevents any MIDI messages from being sent while in catch-up mode
+      if (lastMidiValues[i] != targetValue) {
+        lastMidiValues[i] = targetValue;
+      }
+    }
+  }
+  
+  // If all pots have caught up, exit catch-up mode
+  if (allCaughtUp) {
+    catchupModeActive = false;
   }
 }
 
@@ -252,7 +292,7 @@ void factoryReset() {
     potMessages[i].isInverted = false;
   }
   saveSettings();
-  
+
   // Reset last MIDI values to match new settings
   for (int i = 0; i < 8; i++) {
     int rawValue = readMUXChannel(i);
@@ -260,7 +300,7 @@ void factoryReset() {
     lastMidiValues[i] = mapRawToMIDI(i, rawValue);
     sendMIDICC(i, lastMidiValues[i]);
   }
-  
+
   delay(1500);
   currentScreen = MAIN_SCREEN;
   drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
@@ -623,13 +663,21 @@ void loop() {
     }
   }
 
-  // Read potentiometers 1-8
+  // Read potentiometers 1-7
   for (int pot = 0; pot < 7; pot++) {
     unsigned long currentTime = millis();
     if ((currentTime - lastReadTime[pot]) > readDelay) {
       int rawValue = readMUXChannel(pot);
       int midiValue = mapRawToMIDI(pot, rawValue);
 
+      // In catch-up mode, only update values when passing stored position
+      if (catchupModeActive) {
+        // Don't automatically update - let handleCatchup() manage it
+        lastReadTime[pot] = currentTime;
+        continue;
+      }
+
+      // Normal operation (not in catch-up mode)
       if (abs(midiValue - lastMidiValues[pot]) >= CHANGE_THRESHOLD) {
         lastRawValues[pot] = rawValue;
         lastMidiValues[pot] = midiValue;
@@ -651,7 +699,11 @@ void loop() {
     // Standard MIDI behavior for Pot 8 when on Main Screen
     int rawValue = readMUXChannel(7);
     int midiValue = mapRawToMIDI(7, rawValue);
-    if (abs(midiValue - lastMidiValues[7]) >= CHANGE_THRESHOLD) {
+
+    // In catch-up mode, handle Pot 8 separately
+    if (catchupModeActive) {
+      // Let handleCatchup() manage it
+    } else if (abs(midiValue - lastMidiValues[7]) >= CHANGE_THRESHOLD) {
       lastRawValues[7] = rawValue;
       lastMidiValues[7] = midiValue;
       lastEditedPot = 7;
@@ -659,6 +711,9 @@ void loop() {
       drawMainScreen(7, midiValue);
     }
   }
+
+  // Handle catch-up mode after reading pots
+  handleCatchup();
 
   readButtons();
   delay(2);
@@ -698,7 +753,7 @@ void drawMainScreen(int potNumber, int midiValue) {
   display.print(potNumber + 1);
 
   display.setTextSize(2);
-  
+
   // Calculate horizontal center for the MIDI value
   // Text size 2 means each character is approximately 12 pixels wide (6x2 for width)
   // Get the number of digits in the MIDI value
@@ -706,12 +761,12 @@ void drawMainScreen(int potNumber, int midiValue) {
   if (midiValue < 10) numDigits = 1;
   else if (midiValue < 100) numDigits = 2;
   else numDigits = 3;
-  
+
   // Calculate starting X position to center the number
   // Screen width is 128, text width is roughly (numDigits * 12)
   int textWidth = numDigits * 12;
   int startX = (128 - textWidth) / 2;
-  
+
   display.setCursor(startX, 25);
   display.print(midiValue);
 
