@@ -49,7 +49,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int EEPROM_ADDRESS = 0;
 
 // -- MIDI INSTANCE --
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 // -- MIDI STRUCT
 struct MIDIMessage {
@@ -99,9 +99,9 @@ bool lastNextButtonState = HIGH;
 
 // -- TEMP MODE VARIABLES --
 bool tempModeActive = false;
-int storedMidiValues[8]; // Store original values when entering temp mode
+int storedMidiValues[8];  // Store original values when entering temp mode
 unsigned long enterButtonPressTime = 0;
-const unsigned long longPressTime = 300; // 300ms to detect hold vs click
+const unsigned long longPressTime = 300;  // 300ms to detect hold vs click
 
 // -- EEPROM FUNCTIONS --
 // -- SAVE EEPROM
@@ -173,35 +173,87 @@ void sendMIDICC(int potNumber, int midiValue) {
   }
 }
 
-// -- FUNCTION TO ENTER TEMP MODE --
+// -- FUNCTION TO ENTER TEMP MODE (DEBUG VERSION) --
 void enterTempMode() {
+  //Serial.println(F("enterTempMode() called"));
   if (!tempModeActive && currentScreen == MAIN_SCREEN) {
+    //Serial.println(F("Conditions met, entering temp mode"));
     tempModeActive = true;
     // Store current MIDI values
     for (int i = 0; i < 8; i++) {
       storedMidiValues[i] = lastMidiValues[i];
+      /*
+      Serial.print(F("Stored pot "));
+      Serial.print(i);
+      Serial.print(F(": "));
+      Serial.println(storedMidiValues[i]);
+      */
     }
     // Invert display for visual feedback
     display.invertDisplay(true);
+    //Serial.println(F("Display inverted"));
+  } else {
+    /*
+    Serial.print(F("Cannot enter temp mode. tempModeActive="));
+    Serial.print(tempModeActive);
+    Serial.print(F(", currentScreen="));
+    Serial.println(currentScreen);
+    */
   }
 }
 
-// -- FUNCTION TO EXIT TEMP MODE --
+// -- FUNCTION TO EXIT TEMP MODE (DEBUG VERSION) --
 void exitTempMode() {
+  //Serial.println(F("exitTempMode() called"));
   if (tempModeActive) {
+    //Serial.println(F("Exiting temp mode"));
     tempModeActive = false;
     // Restore original MIDI values
     for (int i = 0; i < 8; i++) {
       if (lastMidiValues[i] != storedMidiValues[i]) {
+        /*
+        Serial.print(F("Restoring pot "));
+        Serial.print(i);
+        Serial.print(F(" from "));
+        Serial.print(lastMidiValues[i]);
+        Serial.print(F(" to "));
+        Serial.println(storedMidiValues[i]);
+        */
         lastMidiValues[i] = storedMidiValues[i];
         sendMIDICC(i, storedMidiValues[i]);
       }
     }
     // Restore display
     display.invertDisplay(false);
+    //Serial.println(F("Display restored to normal"));
     // Redraw main screen with restored values
     drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
+  } else {
+    //Serial.println(F("Cannot exit temp mode - not active"));
   }
+}
+
+// -- ADD THIS FUNCTION ABOVE readButtons() --
+void factoryReset() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(20, 25);
+  display.print(F("FACTORY RESET..."));
+  display.display();
+
+  for (int i = 0; i < 8; i++) {
+    potMessages[i].cc = 7;
+    potMessages[i].channel = i + 1;
+    potMessages[i].omni = false;
+    potMessages[i].minValue = 0;
+    potMessages[i].maxValue = 127;
+    potMessages[i].isInverted = false;
+  }
+  saveSettings();
+  delay(1500);
+  drawLoadingScreen();
+  delay(1000);
+  currentScreen = MAIN_SCREEN;
 }
 
 // -- FUNCTION FOR BUTTON HANDLING --
@@ -221,10 +273,12 @@ void readButtons() {
         selectedPot = lastEditedPot;
         assignEditMode = 0;
         lastFlashTime = currentTime;
+        //Serial.println("-- ASSIGN_BUTTON PRESSED >> Moving to ASSIGN_SCREEN");
         drawAssignScreen();
       } else {
         saveSettings();  // SAVE ON EXIT
         currentScreen = MAIN_SCREEN;
+        //Serial.println("-- ASSIGN_BUTTON PRESSED >> Moving to MAIN_SCREEN");
         drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
       }
       lastButtonPressTime = currentTime;
@@ -232,23 +286,35 @@ void readButtons() {
   }
   lastAssignButtonState = assignButtonState;
 
+  // ENTER BUTTON
+  if (enterButtonState == HIGH && lastEnterButtonState == LOW) {
+    if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
+      if (currentScreen == ASSIGN_SCREEN) {
+        assignEditMode = (assignEditMode + 1) % 6;
+        drawAssignScreen();
+      } else if (currentScreen == MAIN_SCREEN) {
+        //Serial.println(F("-- ENTER BUTTON HELD >> ACTIVATING TEMP MODE"));
+        enterTempMode();
+      }
+      lastButtonPressTime = currentTime;
+    }
+  }
+
+  if (enterButtonState == LOW && lastEnterButtonState == HIGH) {
+    if (currentScreen == MAIN_SCREEN && tempModeActive) {
+      //Serial.println(F("-- ENTER BUTTON RELEASED >> EXITING TEMP MODE"));
+      exitTempMode();
+    }
+  }
+
+  lastEnterButtonState = enterButtonState;
+
   // Only process other buttons in ASSIGN_SCREEN
   if (currentScreen != ASSIGN_SCREEN) {
-    lastEnterButtonState = enterButtonState;
     lastPrevButtonState = prevButtonState;
     lastNextButtonState = nextButtonState;
     return;
   }
-
-  // ENTER BUTTON
-  if (enterButtonState == LOW && lastEnterButtonState == HIGH) {
-    if ((currentTime - lastButtonPressTime) > buttonDebounceDelay) {
-      assignEditMode = (assignEditMode + 1) % 6;
-      drawAssignScreen();
-      lastButtonPressTime = currentTime;
-    }
-  }
-  lastEnterButtonState = enterButtonState;
 
   // PREV BUTTON
   if (prevButtonState == LOW && lastPrevButtonState == HIGH) {
@@ -438,6 +504,16 @@ void handlePot8Editing() {
 
 // -- SETUP --
 void setup() {
+
+  // Initialize Serial for debugging
+  Serial.begin(9600);
+  while (!Serial && millis() < 4000)
+    ;
+
+  //Serial.println(F("\n\nMC8P mini Debug Mode"));
+  //Serial.println(F("Firmware v1.0 with debugging"));
+
+
   // Initialize pot messages with default values
   for (int i = 0; i < 8; i++) {
     potMessages[i].cc = 7;
@@ -466,18 +542,28 @@ void setup() {
   lastPrevButtonState = digitalRead(PREV_BUTTON);
   lastNextButtonState = digitalRead(NEXT_BUTTON);
 
-  // Initialize MIDI
-  MIDI.begin(MIDI_CHANNEL_OMNI);
-  MIDI.turnThruOff();
-
   // Initialize display
+  Wire.begin();
+  Wire.setClock(100000);  // Set to Standard 100kHz for stability
+  delay(100);
+  //Wire.setWireTimeout(3000, true);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    for (;;)
-      ;
+    //Serial.println(F("ERROR: Display not found!"));
+  } else {
+
+    //Serial.println(F("Display initialized"));
+    display.clearDisplay();
+    display.display();
   }
+
+  // Initialize MIDI
+  //MIDI.begin(MIDI_CHANNEL_OMNI);
+  //MIDI.turnThruOff();
+
 
   // -- LOAD SETTINGS --
   loadSettings();
+  //Serial.println(F("Settings loaded"));
 
   drawLoadingScreen();
   delay(2000);
@@ -493,6 +579,7 @@ void setup() {
 
   currentScreen = MAIN_SCREEN;
   drawMainScreen(0, lastMidiValues[0]);
+  //Serial.println(F("Setup complete, entering main loop"));
 }
 
 // -- LOOP --
@@ -507,7 +594,7 @@ void loop() {
     }
   }
 
-  // Read potentiometers 1-7
+  // Read potentiometers 1-8
   for (int pot = 0; pot < 7; pot++) {
     unsigned long currentTime = millis();
     if ((currentTime - lastReadTime[pot]) > readDelay) {
@@ -550,6 +637,7 @@ void loop() {
 
 // -- DISPLAY SCREENS --
 void drawLoadingScreen() {
+
   display.clearDisplay();
   display.drawRoundRect(1, 1, 125, 62, 4, SSD1306_WHITE);
   display.setTextColor(SSD1306_WHITE);
