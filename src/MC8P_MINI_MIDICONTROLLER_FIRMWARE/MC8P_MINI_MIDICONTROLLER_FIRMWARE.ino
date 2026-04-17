@@ -49,7 +49,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int EEPROM_ADDRESS = 0;
 
 // -- MIDI INSTANCE --
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
 // -- MIDI STRUCT
 struct MIDIMessage {

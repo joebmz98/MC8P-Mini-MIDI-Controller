@@ -1012,6 +1012,192 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:SolderJumper_2_Open"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Open"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, open"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Open*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SolderJumper_2_Open_0_1"
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Open_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "MCU_Module:Arduino_Nano_v2.x"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -2600,7 +2786,7 @@
 		)
 	)
 	(rectangle
-		(start 76.2 64.77)
+		(start 68.58 26.67)
 		(end 100.33 92.71)
 		(stroke
 			(width 0)
@@ -2672,7 +2858,7 @@
 	)
 	(text "SSD1306\n"
 		(exclude_from_sim no)
-		(at 82.296 67.31 0)
+		(at 72.898 46.736 0)
 		(effects
 			(font
 				(face "Alagard")
@@ -2714,6 +2900,26 @@
 		)
 		(uuid "e60e695c-3185-4dcf-8ae7-c39b10f5bc88")
 	)
+	(text_box "Jumper connectors\n- if using arduino nano r4 - solder the jumpers"
+		(exclude_from_sim no)
+		(at 69.85 27.94 0)
+		(size 19.05 13.97)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "d692d113-46bd-49b7-8925-e9db35d38cde")
+	)
 	(junction
 		(at 86.36 134.62)
 		(diameter 0)
@@ -2737,6 +2943,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "270d53f2-2422-4627-9059-d39f7dd31177")
+	)
+	(junction
+		(at 81.28 71.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7f13c0ce-24be-42ab-a946-bd63f1b4ea78")
 	)
 	(junction
 		(at 86.36 109.22)
@@ -2763,10 +2975,22 @@
 		(uuid "e1c5b6bd-dd2a-4c6f-9168-4205bbd23624")
 	)
 	(junction
+		(at 82.55 87.63)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e303e75c-9cd2-4baa-a246-9b26348a54fc")
+	)
+	(junction
 		(at 33.02 109.22)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f11729dd-6f9a-418a-973b-f5a03fd5e2a0")
+	)
+	(junction
+		(at 83.82 71.12)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f2436e3c-aab7-4e44-a48d-6a2904f564ba")
 	)
 	(no_connect
 		(at 200.66 87.63)
@@ -2783,6 +3007,10 @@
 	(no_connect
 		(at 200.66 85.09)
 		(uuid "3282b1d9-65ec-4323-a2af-5e49beee8ed0")
+	)
+	(no_connect
+		(at 46.99 24.13)
+		(uuid "3636797e-83d3-44e4-b6d1-2fae930e4ce5")
 	)
 	(no_connect
 		(at 57.15 57.15)
@@ -2865,6 +3093,16 @@
 			(type default)
 		)
 		(uuid "0060224e-22c6-427c-be52-651984e434a2")
+	)
+	(wire
+		(pts
+			(xy 77.47 71.12) (xy 81.28 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "037af8be-ed13-45ca-9f00-8100594d5415")
 	)
 	(wire
 		(pts
@@ -2958,6 +3196,16 @@
 	)
 	(wire
 		(pts
+			(xy 87.63 72.39) (xy 87.63 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b407dcb-cb36-4e16-99ea-1d8b131f1d39")
+	)
+	(wire
+		(pts
 			(xy 68.58 134.62) (xy 68.58 133.35)
 		)
 		(stroke
@@ -2988,6 +3236,16 @@
 	)
 	(wire
 		(pts
+			(xy 81.28 77.47) (xy 81.28 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "308a3361-3d07-493e-bfe5-11a312bf21d6")
+	)
+	(wire
+		(pts
 			(xy 85.09 134.62) (xy 86.36 134.62)
 		)
 		(stroke
@@ -2995,6 +3253,16 @@
 			(type default)
 		)
 		(uuid "30f2c13e-c00a-490c-95ea-448eb14f85d9")
+	)
+	(wire
+		(pts
+			(xy 82.55 88.9) (xy 82.55 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31bcb23d-356d-4897-939d-d0c8cd9d30af")
 	)
 	(wire
 		(pts
@@ -3025,6 +3293,16 @@
 			(type default)
 		)
 		(uuid "49fa3adb-ec6a-4eea-af90-6e0892f225bb")
+	)
+	(wire
+		(pts
+			(xy 83.82 77.47) (xy 83.82 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4a021490-5e76-46ac-9ee5-bce77049e828")
 	)
 	(wire
 		(pts
@@ -3068,6 +3346,16 @@
 	)
 	(wire
 		(pts
+			(xy 87.63 71.12) (xy 83.82 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "59d492c5-dfbc-4b5e-a46d-de78d31c4658")
+	)
+	(wire
+		(pts
 			(xy 91.44 105.41) (xy 91.44 104.14)
 		)
 		(stroke
@@ -3085,6 +3373,16 @@
 			(type default)
 		)
 		(uuid "6653e814-5555-44d8-b2cb-d3ddf46f8964")
+	)
+	(wire
+		(pts
+			(xy 77.47 87.63) (xy 82.55 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6c89460e-76db-4e2c-9743-9275ee1e1916")
 	)
 	(wire
 		(pts
@@ -3288,6 +3586,16 @@
 	)
 	(wire
 		(pts
+			(xy 83.82 71.12) (xy 83.82 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bcdeb1b4-7c47-4103-a6ff-9e412231ee7b")
+	)
+	(wire
+		(pts
 			(xy 73.66 130.81) (xy 73.66 129.54)
 		)
 		(stroke
@@ -3315,6 +3623,16 @@
 			(type default)
 		)
 		(uuid "cfd2b94b-2084-45f2-9c49-bdd50bcfd9ee")
+	)
+	(wire
+		(pts
+			(xy 81.28 71.12) (xy 81.28 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cfeb2b29-4774-45e5-9629-add08416847f")
 	)
 	(wire
 		(pts
@@ -3348,6 +3666,16 @@
 	)
 	(wire
 		(pts
+			(xy 77.47 72.39) (xy 77.47 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec34b92f-262e-489d-b9ba-dbb80f053fdf")
+	)
+	(wire
+		(pts
 			(xy 49.53 134.62) (xy 50.8 134.62)
 		)
 		(stroke
@@ -3365,6 +3693,16 @@
 			(type default)
 		)
 		(uuid "ed9c5900-3df2-4308-89e9-53852263ab57")
+	)
+	(wire
+		(pts
+			(xy 82.55 87.63) (xy 87.63 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f0b0c2bd-6fff-4630-b6b5-4a2d9f28c71e")
 	)
 	(wire
 		(pts
@@ -3914,9 +4252,9 @@
 			)
 		)
 	)
-	(global_label "3v3"
+	(global_label "5V"
 		(shape input)
-		(at 86.36 85.09 270)
+		(at 86.36 59.69 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3926,7 +4264,7 @@
 		)
 		(uuid "69c045c7-aab9-4183-9a9b-55d9ed130668")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 86.36 91.4618 90)
+			(at 86.36 64.9733 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4334,7 +4672,7 @@
 	)
 	(global_label "SCL"
 		(shape input)
-		(at 83.82 85.09 270)
+		(at 83.82 77.47 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4344,7 +4682,7 @@
 		)
 		(uuid "ba7419b8-a715-4906-9876-a6c2eed7baab")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.82 91.5828 90)
+			(at 83.82 83.9628 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4574,9 +4912,9 @@
 			)
 		)
 	)
-	(global_label "SDA"
+	(global_label "5V"
 		(shape input)
-		(at 81.28 85.09 270)
+		(at 82.55 88.9 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4584,9 +4922,9 @@
 			)
 			(justify right)
 		)
-		(uuid "e7f407fd-b5fe-4394-aaea-b0847cdc9262")
+		(uuid "e622f9cc-a4b7-40d7-8dc7-6f5651176d26")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.28 91.6433 90)
+			(at 82.55 94.1833 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4596,24 +4934,24 @@
 			)
 		)
 	)
-	(global_label "3v3"
+	(global_label "SDA"
 		(shape input)
-		(at 46.99 24.13 90)
+		(at 81.28 77.47 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
-		(uuid "e916aa64-39ed-4b43-be8c-30b0ac6083a2")
+		(uuid "e7f407fd-b5fe-4394-aaea-b0847cdc9262")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 46.99 17.7582 90)
+			(at 81.28 84.0233 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -5309,7 +5647,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 88.9 85.09 0)
+		(at 88.9 59.69 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5317,7 +5655,7 @@
 		(dnp no)
 		(uuid "1c9e49d8-2fb8-4a46-b21a-ecf3d780ad6c")
 		(property "Reference" "#PWR027"
-			(at 88.9 91.44 0)
+			(at 88.9 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5326,7 +5664,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 92.456 88.392 0)
+			(at 92.456 62.992 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5334,7 +5672,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 85.09 0)
+			(at 88.9 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5343,7 +5681,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 85.09 0)
+			(at 88.9 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5352,7 +5690,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 88.9 85.09 0)
+			(at 88.9 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8079,6 +8417,134 @@
 		)
 	)
 	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 87.63 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b78c1633-38e6-4791-b151-21e0c4500c93")
+		(property "Reference" "R9"
+			(at 90.17 82.5499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 85.09 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 85.09 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 87.63 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 87.63 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 85.09 91.694 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 85.09 93.218 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 85.09 94.742 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 90.17 85.0899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 87.63 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 87.63 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3d837dfe-e487-408f-9504-96b5d8f3653b")
+		)
+		(pin "2"
+			(uuid "d5daf610-9666-4134-993f-7de923ea7006")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Potentiometer")
 		(at 68.58 129.54 270)
 		(unit 1)
@@ -8144,6 +8610,203 @@
 			(project "MC8P_MINI_KICAD"
 				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
 					(reference "RV7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "PCM_4ms_Resistor:10k_0402")
+		(at 77.47 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c44a5554-f5a9-4081-b6ad-92a5d13d6f6b")
+		(property "Reference" "R8"
+			(at 72.39 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k_0402"
+			(at 74.93 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "PCM_4ms_Resistor:R_0603"
+			(at 74.93 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 77.47 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "10k, 1%, 1/16W, 0603"
+			(at 77.47 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Specifications" "10k, 1%, 1/10W, 0402"
+			(at 74.93 91.694 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 74.93 93.218 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RT0402FRE0710KL"
+			(at 74.93 94.742 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Display" "10k"
+			(at 71.882 85.344 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Manufacturer 2" "Yageo"
+			(at 77.47 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number 2" "RT0402DRE0710KL"
+			(at 77.47 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7b0dd6c9-4ca5-4529-95a8-27158d7db367")
+		)
+		(pin "2"
+			(uuid "1ae37d16-82b7-451c-8ef9-80d56ef56e64")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:SolderJumper_2_Open")
+		(at 87.63 76.2 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c5dea99b-ae60-4370-8cf5-451a5ff11c2d")
+		(property "Reference" "JP1"
+			(at 90.17 74.9299 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "SolderJumper_2_Open"
+			(at 90.17 77.4699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 87.63 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 87.63 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Solder Jumper, 2-pole, open"
+			(at 87.63 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b10d68d9-b1a4-414d-96ce-2cf70e860a3d")
+		)
+		(pin "1"
+			(uuid "3cd2dde9-d850-4d62-83ca-6b9f45d4ef6d")
+		)
+		(instances
+			(project ""
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "JP1")
 					(unit 1)
 				)
 			)
@@ -8540,6 +9203,75 @@
 			(project "MC8P_MINI_KICAD"
 				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
 					(reference "#PWR011")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:SolderJumper_2_Open")
+		(at 77.47 76.2 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "dca7ac45-ab99-4d2d-8121-ab96e9de4811")
+		(property "Reference" "JP2"
+			(at 72.644 69.85 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "SolderJumper_2_Open"
+			(at 55.88 72.644 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 77.47 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 77.47 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Solder Jumper, 2-pole, open"
+			(at 77.47 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "cbae1d54-9cc6-48d0-842e-e7e90012d6d0")
+		)
+		(pin "1"
+			(uuid "2608d7f5-2c62-4393-80f2-8d5fb61048ba")
+		)
+		(instances
+			(project "MC8P_MINI_KICAD"
+				(path "/ed1314fc-0cc2-4412-9b67-995b1161d784"
+					(reference "JP2")
 					(unit 1)
 				)
 			)
@@ -8946,7 +9678,7 @@
 	)
 	(symbol
 		(lib_id "SSD1306-128x64_OLED:SSD1306")
-		(at 85.09 76.2 180)
+		(at 85.09 50.8 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8954,7 +9686,7 @@
 		(dnp no)
 		(uuid "f66b3214-2cc0-44a0-8202-2d714d525d28")
 		(property "Reference" "Brd1"
-			(at 90.678 83.312 0)
+			(at 90.678 57.912 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8963,7 +9695,7 @@
 			)
 		)
 		(property "Value" "SSD1306"
-			(at 90.678 85.852 0)
+			(at 90.678 60.452 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8972,7 +9704,7 @@
 			)
 		)
 		(property "Footprint" "SSD1306:128x64OLED"
-			(at 85.09 82.55 0)
+			(at 85.09 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8981,7 +9713,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 85.09 82.55 0)
+			(at 85.09 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8990,7 +9722,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 85.09 76.2 0)
+			(at 85.09 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
