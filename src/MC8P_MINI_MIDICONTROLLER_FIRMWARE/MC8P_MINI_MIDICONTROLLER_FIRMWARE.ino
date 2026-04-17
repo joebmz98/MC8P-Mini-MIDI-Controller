@@ -49,7 +49,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int EEPROM_ADDRESS = 0;
 
 // -- MIDI INSTANCE --
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 // -- MIDI STRUCT
 struct MIDIMessage {
@@ -91,7 +91,7 @@ bool showPotNumber = true;
 
 // -- BUTTON DEBOUNCING --
 unsigned long lastButtonPressTime = 0;
-const unsigned long buttonDebounceDelay = 200;
+const unsigned long buttonDebounceDelay = 100;
 bool lastAssignButtonState = HIGH;
 bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
@@ -575,7 +575,7 @@ void handlePot8Editing() {
 void setup() {
 
   // Initialize Serial for debugging
-  Serial.begin(9600);
+  //Serial.begin(9600);
   while (!Serial && millis() < 4000)
     ;
 
@@ -626,8 +626,9 @@ void setup() {
   }
 
   // Initialize MIDI
-  //MIDI.begin(MIDI_CHANNEL_OMNI);
-  //MIDI.turnThruOff();
+  MIDI.begin(MIDI_CHANNEL_OMNI);
+  delay(100);
+  MIDI.turnThruOff();
 
 
   // -- LOAD SETTINGS --
