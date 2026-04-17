@@ -49,7 +49,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int EEPROM_ADDRESS = 0;
 
 // -- MIDI INSTANCE --
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
 // -- MIDI STRUCT
 struct MIDIMessage {
@@ -96,6 +96,8 @@ bool lastAssignButtonState = HIGH;
 bool lastEnterButtonState = HIGH;
 bool lastPrevButtonState = HIGH;
 bool lastNextButtonState = HIGH;
+unsigned long bothButtonsPressTime = 0;
+bool bothButtonsHeld = false;
 
 // -- TEMP MODE VARIABLES --
 bool tempModeActive = false;
@@ -233,12 +235,12 @@ void exitTempMode() {
   }
 }
 
-// -- ADD THIS FUNCTION ABOVE readButtons() --
+// -- FACTORY RESET FUNCTION --
 void factoryReset() {
   display.clearDisplay();
   display.setTextSize(1);
-  display.setCursor(20, 25);
-  display.print(F("FACTORY RESET..."));
+  display.setCursor(35, 28);
+  display.print(F("MIDI reset"));
   display.display();
 
   for (int i = 0; i < 8; i++) {
@@ -250,10 +252,18 @@ void factoryReset() {
     potMessages[i].isInverted = false;
   }
   saveSettings();
+  
+  // Reset last MIDI values to match new settings
+  for (int i = 0; i < 8; i++) {
+    int rawValue = readMUXChannel(i);
+    lastRawValues[i] = rawValue;
+    lastMidiValues[i] = mapRawToMIDI(i, rawValue);
+    sendMIDICC(i, lastMidiValues[i]);
+  }
+  
   delay(1500);
-  drawLoadingScreen();
-  delay(1000);
   currentScreen = MAIN_SCREEN;
+  drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
 }
 
 // -- FUNCTION FOR BUTTON HANDLING --
@@ -264,6 +274,25 @@ void readButtons() {
   bool enterButtonState = digitalRead(ENTER_BUTTON);
   bool prevButtonState = digitalRead(PREV_BUTTON);
   bool nextButtonState = digitalRead(NEXT_BUTTON);
+
+  // Check for both PREV and NEXT buttons held in MAIN screen
+  if (currentScreen == MAIN_SCREEN && prevButtonState == HIGH && nextButtonState == HIGH) {
+    if (!bothButtonsHeld) {
+      bothButtonsPressTime = currentTime;
+      bothButtonsHeld = true;
+    } else if ((currentTime - bothButtonsPressTime) >= 2000) {
+      // Both buttons held for 2 seconds - perform factory reset
+      factoryReset();
+      bothButtonsHeld = false;
+      lastButtonPressTime = currentTime;
+      // Reset button states to prevent immediate re-triggering
+      lastPrevButtonState = prevButtonState;
+      lastNextButtonState = nextButtonState;
+      return;
+    }
+  } else {
+    bothButtonsHeld = false;
+  }
 
   // ASSIGN BUTTON
   if (assignButtonState == LOW && lastAssignButtonState == HIGH) {
@@ -669,17 +698,22 @@ void drawMainScreen(int potNumber, int midiValue) {
   display.print(potNumber + 1);
 
   display.setTextSize(2);
-  display.setCursor(47, 25);
-
-  if (midiValue < 10) {
-    display.print(F("  "));
-    display.print(midiValue);
-  } else if (midiValue < 100) {
-    display.print(F(" "));
-    display.print(midiValue);
-  } else {
-    display.print(midiValue);
-  }
+  
+  // Calculate horizontal center for the MIDI value
+  // Text size 2 means each character is approximately 12 pixels wide (6x2 for width)
+  // Get the number of digits in the MIDI value
+  int numDigits;
+  if (midiValue < 10) numDigits = 1;
+  else if (midiValue < 100) numDigits = 2;
+  else numDigits = 3;
+  
+  // Calculate starting X position to center the number
+  // Screen width is 128, text width is roughly (numDigits * 12)
+  int textWidth = numDigits * 12;
+  int startX = (128 - textWidth) / 2;
+  
+  display.setCursor(startX, 25);
+  display.print(midiValue);
 
   display.display();
 }
