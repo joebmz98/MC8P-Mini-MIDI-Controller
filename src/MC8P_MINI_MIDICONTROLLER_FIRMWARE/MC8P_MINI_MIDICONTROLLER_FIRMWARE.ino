@@ -749,7 +749,7 @@ void drawMainScreen(int potNumber, int midiValue) {
 
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
-  display.setCursor(50, 8);
+  display.setCursor(50, 10);
   display.print(F("POT "));
   display.print(potNumber + 1);
 
@@ -768,7 +768,7 @@ void drawMainScreen(int potNumber, int midiValue) {
   int textWidth = numDigits * 12;
   int startX = (128 - textWidth) / 2;
 
-  display.setCursor(startX, 25);
+  display.setCursor(startX, 27);
   display.print(midiValue);
 
   display.display();
@@ -782,11 +782,11 @@ void drawAssignScreen() {
   display.setTextColor(SSD1306_WHITE);
 
   // Title
-  display.setCursor(8, 5);
+  display.setCursor(8, 10);
   display.print(F("MIDI ASSIGN"));
 
   // Show current edit mode
-  display.setCursor(8, 17);
+  display.setCursor(8, 22);
   if (assignEditMode == 0) display.print(F("SELECT POT"));
   else if (assignEditMode == 1) display.print(F("EDIT CHANNEL"));
   else if (assignEditMode == 2) display.print(F("EDIT CC"));
@@ -795,7 +795,7 @@ void drawAssignScreen() {
   else display.print(F("EDIT DIR"));
 
   // Pot number
-  display.setCursor(93, 5);
+  display.setCursor(93, 10);
   if (assignEditMode == 0 && !showPotNumber) {
     display.print(F("     "));
   } else {
@@ -804,7 +804,7 @@ void drawAssignScreen() {
   }
 
   // Channel display
-  display.setCursor(8, 30);
+  display.setCursor(8, 35);
   if (assignEditMode == 1) display.print(F("CH ["));
   else display.print(F("CH "));
 
@@ -815,7 +815,7 @@ void drawAssignScreen() {
   else display.print(F("   "));
 
   // CC display
-  display.setCursor(8, 42);
+  display.setCursor(8, 47);
   if (assignEditMode == 2) display.print(F("CC ["));
   else display.print(F("CC "));
 
@@ -825,7 +825,7 @@ void drawAssignScreen() {
   else display.print(F("   "));
 
   // Range display
-  display.setCursor(66, 30);
+  display.setCursor(66, 35);
   if (assignEditMode == 3) display.print(F("MIN ["));
   else if (assignEditMode == 4) display.print(F("MAX ["));
 
@@ -840,7 +840,7 @@ void drawAssignScreen() {
   if (assignEditMode == 3 || assignEditMode == 4) display.print(F("]"));
 
   // Direction display
-  display.setCursor(66, 42);
+  display.setCursor(66, 47);
   if (assignEditMode == 5) display.print(F("DIR ["));
   else display.print(F("DIR "));
 
