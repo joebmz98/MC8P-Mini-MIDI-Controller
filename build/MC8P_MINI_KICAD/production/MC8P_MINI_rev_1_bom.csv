@@ -1,7 +1,6 @@
 ﻿Designator,Footprint,Quantity,Value,LCSC Part #
 "C1, C2, C3, C4, C5, C6, C7, C8",1206,8,10nF,
 C9,1206,1,100nF_0603_16V,
-J1,Jack_3.5mm_CUI_SJ1-3525N_Horizontal,1,AudioJack3,
 "R1, R2",R_0603,2,220R_0603,
 "R3, R4, R5, R6, R7, R8, R9",R_0603,7,10k_0402,
 SW1,SW_PUSH_6mm,1,ASSIGN,

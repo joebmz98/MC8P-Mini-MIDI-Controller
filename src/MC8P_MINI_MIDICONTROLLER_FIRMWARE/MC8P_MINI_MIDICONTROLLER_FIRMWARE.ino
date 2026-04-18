@@ -613,7 +613,7 @@ void setup() {
 
   // Initialize display
   Wire.begin();
-  Wire.setClock(100000);  // Set to Standard 100kHz for stability
+  Wire.setClock(400000);  // Set to Standard 100kHz for stability
   delay(100);
   //Wire.setWireTimeout(3000, true);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
