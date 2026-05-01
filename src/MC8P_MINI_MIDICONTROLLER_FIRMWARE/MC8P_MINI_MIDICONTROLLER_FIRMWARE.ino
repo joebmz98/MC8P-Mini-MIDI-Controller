@@ -7,6 +7,11 @@
 // .axs instruments      //
 // ********************* //
 
+// If using a NANO R4, uncomment out the necessary parts
+// - Line 70 Comment out - Line 69 uncomment
+// - Line 744 Comment out - Line 743 uncomment
+// 
+
 // -- LIBRARIES --
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
@@ -23,10 +28,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // -- MUX --
 #define MUX_SIG A0
-#define MUX_S0 9
-#define MUX_S1 8
-#define MUX_S2 7
-#define MUX_S3 6
+#define MUX_S0 6
+#define MUX_S1 7
+#define MUX_S2 8
+#define MUX_S3 9
 
 // -- POTS --
 // -- POTS ARE CONNECTED TO MUX
@@ -64,27 +69,27 @@ struct MIDIMessage {
 MIDIMessage potMessages[8];
 
 // -- FIRMWARE VERSION --
-const char FIRMWARE_VERSION[] = "1.0";
+//const char FIRMWARE_VERSION[] = "1.0";  // FOR NANO R4
+const char FIRMWARE_VERSION[] PROGMEM = "1.0"; // USE WITH NANO R3
 
 // -- VARIABLES --
-int lastRawValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-int lastMidiValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-int lastEditedPot = 0;
-unsigned long lastReadTime[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+uint16_t lastRawValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+uint8_t lastMidiValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+uint8_t lastEditedPot = 0;
+unsigned long lastPotReadTime = 0;
 const unsigned long readDelay = 5;
 
 // Fixed threshold for stability (2% of 127 = ~3)
-const int CHANGE_THRESHOLD = 2;
+const uint8_t CHANGE_THRESHOLD = 2;
 
 // -- SCREENS --
 enum ScreenState { MAIN_SCREEN,
-                   ASSIGN_SCREEN,
-                   CONFIRM_SCREEN };
+                   ASSIGN_SCREEN };
 ScreenState currentScreen = MAIN_SCREEN;
 
 // -- ASSIGN SCREEN VARIABLES --
-int selectedPot = 0;
-int assignEditMode = 0;
+uint8_t selectedPot = 0;
+uint8_t assignEditMode = 0;
 unsigned long lastFlashTime = 0;
 const unsigned long flashInterval = 500;
 bool showPotNumber = true;
@@ -101,9 +106,7 @@ bool bothButtonsHeld = false;
 
 // -- TEMP MODE VARIABLES --
 bool tempModeActive = false;
-int storedMidiValues[8];  // Store original values when entering temp mode
-unsigned long enterButtonPressTime = 0;
-const unsigned long longPressTime = 300;  // 300ms to detect hold vs click
+uint8_t storedMidiValues[8];  // Store original values when entering temp mode
 bool catchupModeActive = false;
 
 // -- EEPROM FUNCTIONS --
@@ -139,8 +142,13 @@ int readMUXChannel(int channel) {
   digitalWrite(MUX_S1, (channel >> 1) & 1);
   digitalWrite(MUX_S2, (channel >> 2) & 1);
   digitalWrite(MUX_S3, (channel >> 3) & 1);
-  delayMicroseconds(10);
-  return analogRead(MUX_SIG);
+  delayMicroseconds(50);  // up from 10 — gives MUX more settling time
+  // Take 4 readings and average to reduce ADC noise
+  int sum = 0;
+  for (int i = 0; i < 4; i++) {
+    sum += analogRead(MUX_SIG);
+  }
+  return sum >> 2;  // divide by 4
 }
 
 // -- FUNCTION TO MAP RAW VALUE TO MIDI VALUE --
@@ -200,24 +208,24 @@ void enterTempMode() {
 void exitTempMode() {
   if (tempModeActive) {
     tempModeActive = false;
-    
+
     // Activate catch-up mode
     catchupModeActive = true;
-    
+
     // Restore display
     display.invertDisplay(false);
-    
+
     // Force lastMidiValues to the stored values (what we want to return to)
     // This ensures the display shows the target values
     for (int i = 0; i < 8; i++) {
       lastMidiValues[i] = storedMidiValues[i];
     }
-    
+
     // Send the stored MIDI values immediately (this jumps back to original state)
     for (int i = 0; i < 8; i++) {
       sendMIDICC(i, storedMidiValues[i]);
     }
-    
+
     // Redraw main screen with the stored values
     drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
   }
@@ -226,33 +234,33 @@ void exitTempMode() {
 // -- FUNCTION TO HANDLE CATCH-UP AFTER TEMP MODE --
 void handleCatchup() {
   if (!catchupModeActive) return;
-  
+
   bool allCaughtUp = true;
-  
+
   // Check each pot to see if it's caught up to its stored value
   for (int i = 0; i < 8; i++) {
     // Read the current physical position of the pot
     int rawValue = readMUXChannel(i);
     int currentPhysicalValue = mapRawToMIDI(i, rawValue);
     int targetValue = storedMidiValues[i];
-    
+
     // Has the physical pot reached the target value?
     bool hasReachedTarget = false;
-    
+
     // Check if the physical pot position matches the target value
     // We need to allow for a small tolerance because of analog readings
     if (abs(currentPhysicalValue - targetValue) <= CHANGE_THRESHOLD) {
       hasReachedTarget = true;
     }
-    
+
     if (hasReachedTarget) {
       // This pot has caught up - update lastMidiValues to the physical value
       lastMidiValues[i] = currentPhysicalValue;
       lastRawValues[i] = rawValue;
-      
+
       // Send the current MIDI value (which is now the target value)
       sendMIDICC(i, currentPhysicalValue);
-      
+
       // Update display if this is the last edited pot
       if (i == lastEditedPot && currentScreen == MAIN_SCREEN) {
         drawMainScreen(lastEditedPot, lastMidiValues[lastEditedPot]);
@@ -260,7 +268,7 @@ void handleCatchup() {
     } else {
       // This pot hasn't caught up yet
       allCaughtUp = false;
-      
+
       // IMPORTANT: Force lastMidiValues[i] to stay at the target value
       // This prevents any MIDI messages from being sent while in catch-up mode
       if (lastMidiValues[i] != targetValue) {
@@ -268,7 +276,7 @@ void handleCatchup() {
       }
     }
   }
-  
+
   // If all pots have caught up, exit catch-up mode
   if (allCaughtUp) {
     catchupModeActive = false;
@@ -652,72 +660,60 @@ void setup() {
   //Serial.println(F("Setup complete, entering main loop"));
 }
 
-// -- LOOP --
+// -- LOOP  --
 void loop() {
+  unsigned long currentTime = millis();
+  
   // Handle flashing for assign screen
   if (currentScreen == ASSIGN_SCREEN && assignEditMode == 0) {
-    unsigned long currentTime = millis();
     if ((currentTime - lastFlashTime) > flashInterval) {
       showPotNumber = !showPotNumber;
       drawAssignScreen();
       lastFlashTime = currentTime;
     }
   }
-
-  // Read potentiometers 1-7
-  for (int pot = 0; pot < 7; pot++) {
-    unsigned long currentTime = millis();
-    if ((currentTime - lastReadTime[pot]) > readDelay) {
+  
+  // Read all pots on a single timer instead of 8 individual timers
+  if ((currentTime - lastPotReadTime) >= readDelay) {
+    lastPotReadTime = currentTime;
+    
+    // Read potentiometers 1-7 (pots 0-6)
+    for (int pot = 0; pot < 7; pot++) {
       int rawValue = readMUXChannel(pot);
       int midiValue = mapRawToMIDI(pot, rawValue);
-
-      // In catch-up mode, only update values when passing stored position
-      if (catchupModeActive) {
-        // Don't automatically update - let handleCatchup() manage it
-        lastReadTime[pot] = currentTime;
-        continue;
-      }
-
-      // Normal operation (not in catch-up mode)
+      
+      if (catchupModeActive) continue;
+      
       if (abs(midiValue - lastMidiValues[pot]) >= CHANGE_THRESHOLD) {
         lastRawValues[pot] = rawValue;
         lastMidiValues[pot] = midiValue;
         lastEditedPot = pot;
-
         if (currentScreen == MAIN_SCREEN) {
           sendMIDICC(pot, midiValue);
           drawMainScreen(lastEditedPot, midiValue);
         }
       }
-      lastReadTime[pot] = currentTime;
+    }
+    
+    // Handle Pot 8 specifically
+    if (currentScreen == ASSIGN_SCREEN) {
+      handlePot8Editing();
+    } else {
+      int rawValue = readMUXChannel(7);
+      int midiValue = mapRawToMIDI(7, rawValue);
+      if (!catchupModeActive && abs(midiValue - lastMidiValues[7]) >= CHANGE_THRESHOLD) {
+        lastRawValues[7] = rawValue;
+        lastMidiValues[7] = midiValue;
+        lastEditedPot = 7;
+        sendMIDICC(7, midiValue);
+        drawMainScreen(7, midiValue);
+      }
     }
   }
-
-  // Handle Pot 8 specifically
-  if (currentScreen == ASSIGN_SCREEN) {
-    handlePot8Editing();
-  } else {
-    // Standard MIDI behavior for Pot 8 when on Main Screen
-    int rawValue = readMUXChannel(7);
-    int midiValue = mapRawToMIDI(7, rawValue);
-
-    // In catch-up mode, handle Pot 8 separately
-    if (catchupModeActive) {
-      // Let handleCatchup() manage it
-    } else if (abs(midiValue - lastMidiValues[7]) >= CHANGE_THRESHOLD) {
-      lastRawValues[7] = rawValue;
-      lastMidiValues[7] = midiValue;
-      lastEditedPot = 7;
-      sendMIDICC(7, midiValue);
-      drawMainScreen(7, midiValue);
-    }
-  }
-
-  // Handle catch-up mode after reading pots
+  
+  // Handle catch-up mode and buttons every cycle regardless of pot read timer
   handleCatchup();
-
   readButtons();
-  delay(2);
 }
 
 // -- DISPLAY SCREENS --
@@ -733,7 +729,12 @@ void drawLoadingScreen() {
   display.setCursor(53, 31);
   display.print(F("mini"));
   display.setCursor(55, 45);
-  display.print(FIRMWARE_VERSION);
+
+  // -- NANO R3/R4 CHANGES
+  //display.print(FIRMWARE_VERSION);                        // NANO R4
+  display.print((__FlashStringHelper*)FIRMWARE_VERSION);  // USE WITH NANO R3
+  // --
+
   display.display();
 }
 
