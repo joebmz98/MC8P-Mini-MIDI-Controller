@@ -12,7 +12,7 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 
 ## **Features**
 - **8x Potentiometers** with smooth analog control via 16-channel MUX
-- **Arduino NANO R3/R4 / Pro Micro (Rev2) Compatible** – Easy to source and program
+- **Arduino NANO / Pro Micro (Rev2) Compatible** – Easy to source and program
 - **SSD1306 I2C OLED (128x64)** for the UI
 - **Per-Pot CC Assignment** – Full MIDI CC customization
 - **4x Tactile Switches** for UI navigation/configuration
@@ -26,18 +26,23 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 
 ## **Bill of Materials (BOM)**
 
-| Component                  | Qty | Notes                          | Links |
-|----------------------------|-----|--------------------------------|-------|
-| Arduino NANO / Pro Micro      | 1   | Main microcontroller           | [Arduino NANO R3](https://www.aliexpress.com/w/wholesale-arduino-nano.html?spm=a2g0o.productlist.search.0) / [Pro Micro](https://www.aliexpress.com/w/wholesale-pro-micro-arduino.html?spm=a2g0o.best.search.0) |
-| 16-Channel MUX (74HC4067)  | 1   | For reading 8 potentiometers   | [AliExpress](https://www.aliexpress.com/w/wholesale-cd74hc4067.html?spm=a2g0o.productlist.search.0) |
+| Component                  | Qty | Notes                          | Links / Part Numbers |
+|----------------------------|-----|--------------------------------|----------------------|
+| Arduino NANO / Pro Micro   | 1   | Main microcontroller           | [Arduino NANO R3](https://www.aliexpress.com/w/wholesale-arduino-nano.html?spm=a2g0o.productlist.search.0) / [Pro Micro](https://www.aliexpress.com/w/wholesale-pro-micro-arduino.html?spm=a2g0o.best.search.0) |
+| 16-Channel MUX (74HC4067)  | 1   | For reading 8 potentiometers   | [AliExpress](https://www.aliexpress.com/w/wholesale-cd74hc4067.html?spm=a2g0o.productlist.search.0) / CD74HC4067M96 (JLCPCB) |
 | SSD1306 OLED (128×64)      | 1   | I²C interface                  | [AliExpress](https://www.aliexpress.com/w/wholesale-ssd1306.html?spm=a2g0o.productlist.search.0) |
 | B100K Potentiometers       | 8   | Linear taper                   | [AliExpress](https://www.aliexpress.com/item/1005003523799166.html?spm=a2g0o.productlist.main.4.41b16412N16EC4&aem_p4p_detail=2026050202175910656752474918880005794025&algo_pvid=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56&algo_exp_id=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56-3&pdp_ext_f=%7B"order"%3A"368"%2C"eval"%3A"1"%2C"fromPage"%3A"search"%7D&pdp_npi=6%40dis%21GBP%210.33%210.33%21%21%210.43%210.43%21%402151e6dc17777134792648341e4c8f%2112000026166615223%21sea%21UK%216042796089%21X%211%210%21n_tag%3A-29919%3Bd%3A582ad943%3Bm03_new_user%3A-29895&curPageLogUid=hZYrDWLC06u8&utparam-url=scene%3Asearch%7Cquery_from%3A%7Cx_object_id%3A1005003523799166%7C_p_origin_prod%3A&search_p4p_id=2026050202175910656752474918880005794025_1) |
-| Tactile Switches           | 4   | For menu navigation            | [AliExpress](https://www.aliexpress.com/w/wholesale-6mm-buttons-tht.html?spm=a2g0o.productlist.search.0) |
-| 10k Resistors              | 4   | Pull-up for buttons            | —     |
-| 0.1" Header Pins           | 1   | For connecting components      | —     |
-| PCB                        | 1   | Custom design                  | —     |
-| Potentiometer Knobs        | 8   | For B100K potentiometers       | —     |
-| DC Barrel Jack (Optional)  | 1   | For external power             | —     |
+| Tactile Switches           | 4   | For menu navigation (ASSIGN, ENTER, PREV, NEXT) | K2-6639DP-B4SW-04 (JLCPCB) |
+| 10k Resistors (SMD)        | 7   | Pull-up for buttons and misc   | 0603WAF1002T5E (JLCPCB) |
+| 100nF SMD Capacitor        | 1   | Power rail stabilisation       | 1206B104K101CT (JLCPCB) |
+| 10nF SMD Capacitors        | 8   | Potentiometer filtering        | 1206B103K500NT (JLCPCB) |
+| 220Ω SMD Resistors         | 2   | For MIDI circuitry             | 0603WAF2200T5E (JLCPCB) |
+| PJ307 Stereo Headphone Socket | 1 | 3.5mm MIDI TRS Out (Type A) | — |
+| Reset Button (SMD)         | 1   | Rev2 only - Reset button       | KMR221GLFS (JLCPCB) |
+| 0.1" Header Pins           | 1   | For connecting components      | — |
+| PCB                        | 1   | Custom design                  | — |
+| Potentiometer Knobs        | 8   | For B100K potentiometers       | — |
+| DC Barrel Jack (Optional)  | 1   | For external power             | — |
 
 ---
 
