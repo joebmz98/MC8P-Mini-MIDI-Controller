@@ -42,7 +42,6 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 | 0.1" Header Pins           | 1   | For connecting components      | — |
 | PCB                        | 1   | Custom design                  | — |
 | Potentiometer Knobs        | 8   | For B100K potentiometers       | — |
-| DC Barrel Jack (Optional)  | 1   | For external power             | — |
 
 ---
 
