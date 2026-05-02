@@ -54,7 +54,7 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 ### **1. Flashing the Firmware**
 - Install **Arduino IDE**
 - Install required libraries (see Building from Source section)
-- Open the `.ino` file in Arduino IDE
+- Open the `.ino` file in Arduino IDE | There are two files - one for NANO and one for Pro Micro
 - Select your board (**Arduino NANO R3/R4 or ProMicro**)
 - Upload the firmware
 
