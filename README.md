@@ -6,7 +6,7 @@
 
 A compact, open-source MIDI controller with **8 potentiometers**, each with **fully assignable MIDI CCs**, built for **Arduino NANO R3/R4 (Rev1)** or the **Pro Micro (Rev2)**.
 
-<img src="[YOUR_IMAGE_URL_HERE]" alt="Photo of the assembled MC8P mini MIDI Controller" width="600"/>
+<img src="https://github.com/joebmz98/MC8P-Mini-MIDI-Controller/blob/main/images/photos/P1155458.jpg?raw=true" alt="Photo of the assembled MC8P mini MIDI Controller" width="600"/>
 
 ---
 
@@ -29,7 +29,7 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 | Component                  | Qty | Notes                          | Links |
 |----------------------------|-----|--------------------------------|-------|
 | Arduino NANO / Pro Micro      | 1   | Main microcontroller           | [Arduino NANO R3](https://www.aliexpress.com/w/wholesale-arduino-nano.html?spm=a2g0o.productlist.search.0) / [Pro Micro](https://www.aliexpress.com/w/wholesale-pro-micro-arduino.html?spm=a2g0o.best.search.0) |
-| 16-Channel MUX (74HC4067)  | 1   | For reading 8 potentiometers   | [AliExpress]([https://www.aliexpress.com/item/1005006318271282.html](https://www.aliexpress.com/w/wholesale-cd74hc4067-soic-24-smd.html?spm=a2g0o.productlist.search.0)) |
+| 16-Channel MUX (74HC4067)  | 1   | For reading 8 potentiometers   | [AliExpress](https://www.aliexpress.com/w/wholesale-cd74hc4067.html?spm=a2g0o.productlist.search.0) |
 | SSD1306 OLED (128×64)      | 1   | I²C interface                  | [AliExpress](https://www.aliexpress.com/w/wholesale-ssd1306.html?spm=a2g0o.productlist.search.0) |
 | B100K Potentiometers       | 8   | Linear taper                   | [AliExpress](https://www.aliexpress.com/item/1005003523799166.html?spm=a2g0o.productlist.main.4.41b16412N16EC4&aem_p4p_detail=2026050202175910656752474918880005794025&algo_pvid=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56&algo_exp_id=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56-3&pdp_ext_f=%7B"order"%3A"368"%2C"eval"%3A"1"%2C"fromPage"%3A"search"%7D&pdp_npi=6%40dis%21GBP%210.33%210.33%21%21%210.43%210.43%21%402151e6dc17777134792648341e4c8f%2112000026166615223%21sea%21UK%216042796089%21X%211%210%21n_tag%3A-29919%3Bd%3A582ad943%3Bm03_new_user%3A-29895&curPageLogUid=hZYrDWLC06u8&utparam-url=scene%3Asearch%7Cquery_from%3A%7Cx_object_id%3A1005003523799166%7C_p_origin_prod%3A&search_p4p_id=2026050202175910656752474918880005794025_1) |
 | Tactile Switches           | 4   | For menu navigation            | [AliExpress](https://www.aliexpress.com/w/wholesale-6mm-buttons-tht.html?spm=a2g0o.productlist.search.0) |
@@ -51,7 +51,7 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 - Install **Arduino IDE**
 - Install required libraries (see Building from Source section)
 - Open the `.ino` file in Arduino IDE
-- Select your board (**Arduino NANO R3/R4 or ProMicro**
+- Select your board (**Arduino NANO R3/R4 or ProMicro**)
 - Upload the firmware
 
 ### **2. Hardware Assembly**
@@ -168,14 +168,14 @@ From the main screen, press and hold **PREV + NEXT** for 2 seconds:
 | MUX SIG          | A0                                   |
 | MUX S0           | D8                                   |
 | MUX S1           | D9                                   |
-| MUX S2           | D10                                   |
-| MUX S3           | D16                                   |
+| MUX S2           | D10                                  |
+| MUX S3           | D16                                  |
 | ASSIGN Button    | D4 (INPUT_PULLUP)                    |
 | ENTER Button     | D5 (INPUT_PULLUP)                    |
 | PREV Button      | D6 (INPUT_PULLUP)                    |
 | NEXT Button      | D7 (INPUT_PULLUP)                    |
-| OLED SDA         | D2 (SDA)                                   |
-| OLED SCL         | D3 (SCL)                                  |
+| OLED SDA         | D2 (SDA)                             |
+| OLED SCL         | D3 (SCL)                             |
 | Pot 1-8          | MUX Channels 0-7                     |
 
 ---
@@ -184,9 +184,9 @@ From the main screen, press and hold **PREV + NEXT** for 2 seconds:
 
 | Feature           | MC8P (Teensy 4.0)    | MC8P mini (Arduino)      |
 |-------------------|----------------------|---------------------------|
-| Microcontroller   | Teensy 4.0           | Arduino NANO / Pro Micro       |
-| MIDI Output       | USB + TRS 3.5mm      | Rev1 TRS Only / Rev2 USB + TRS 3.5mm                  |
-| Max CCs per Pot   | Up to 10             | 1     |
+| Microcontroller   | Teensy 4.0           | Arduino NANO / Pro Micro  |
+| MIDI Output       | USB + TRS 3.5mm      | Rev1 TRS Only / Rev2 USB + TRS 3.5mm |
+| Max CCs per Pot   | Up to 10             | 1                         |
 | EEPROM            | Yes                  | Yes                       |
 | Catch-up Mode     | Yes                  | Yes                       |
 | Temp Override     | Yes                  | Yes                       |
