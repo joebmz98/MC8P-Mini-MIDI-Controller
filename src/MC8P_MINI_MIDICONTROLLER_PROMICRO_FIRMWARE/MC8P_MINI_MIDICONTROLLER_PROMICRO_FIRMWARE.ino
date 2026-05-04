@@ -11,7 +11,7 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <MIDI.h>
-#include <MIDIUSB.h>  
+#include <MIDIUSB.h>
 #include <Wire.h>
 #include <EEPROM.h>
 #include "usb_rename.h"
@@ -51,7 +51,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 const int EEPROM_ADDRESS = 0;
 
 // -- MIDI INSTANCE --
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1,  MIDI_DIN);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI_DIN);
 
 // -- MIDI STRUCT
 struct MIDIMessage {
@@ -70,7 +70,7 @@ USBRename deviceName = USBRename("MC8P Mini", ".axs instruments", NULL);
 
 // -- FIRMWARE VERSION --
 //const char FIRMWARE_VERSION[] = "1.0";  // FOR NANO R4
-const char FIRMWARE_VERSION[] PROGMEM = "1.0"; // USE WITH NANO R3
+const char FIRMWARE_VERSION[] PROGMEM = "1.0";  // USE WITH NANO R3
 
 // -- VARIABLES --
 uint16_t lastRawValues[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -108,6 +108,8 @@ bool bothButtonsHeld = false;
 bool tempModeActive = false;
 uint8_t storedMidiValues[8];  // Store original values when entering temp mode
 bool catchupModeActive = false;
+
+// -- USB STATUS -- 
 
 // -- EEPROM FUNCTIONS --
 // -- SAVE EEPROM
@@ -177,39 +179,30 @@ int mapRawToMIDI(int potNumber, int rawValue) {
 void sendMIDICC(int potNumber, int midiValue) {
   uint8_t cc = potMessages[potNumber].cc;
   uint8_t chan = potMessages[potNumber].channel;
-  uint8_t channelZeroBased = chan - 1;  // MIDIUSB uses 0-15
+  uint8_t channelZeroBased = chan - 1;
+
+  // Only send USB MIDI if a host is connected and configured
+    bool usbReady = USBDevice.configured() && (millis() > 3000);
 
   if (potMessages[potNumber].omni) {
     for (int ch = 1; ch <= 16; ch++) {
-      // Send to Hardware DIN MIDI (5-pin)
       MIDI_DIN.sendControlChange(cc, midiValue, ch);
-      
-      // Send to USB MIDI
-      midiEventPacket_t usbEvent = {
-        0x0B,                    // Control Change status byte
-        0xB0 | (ch - 1),        // MIDI command + channel (0-15)
-        cc,                      // Controller number
-        (uint8_t)midiValue       // Value
-      };
-      MidiUSB.sendMIDI(usbEvent);
+      if (usbReady) {
+        midiEventPacket_t usbEvent = { 0x0B, 0xB0 | (ch - 1), cc, (uint8_t)midiValue };
+        MidiUSB.sendMIDI(usbEvent);
+      }
     }
   } else {
-    // Send to specific channel on both interfaces
-    // DIN MIDI
     MIDI_DIN.sendControlChange(cc, midiValue, chan);
-    
-    // USB MIDI
-    midiEventPacket_t usbEvent = {
-      0x0B,                     // Control Change
-      0xB0 | channelZeroBased, // Channel (0-15)
-      cc,                       // CC number
-      (uint8_t)midiValue        // Value
-    };
-    MidiUSB.sendMIDI(usbEvent);
+    if (usbReady) {
+      midiEventPacket_t usbEvent = { 0x0B, 0xB0 | channelZeroBased, cc, (uint8_t)midiValue };
+      MidiUSB.sendMIDI(usbEvent);
+    }
   }
-  
-  // IMPORTANT: Flush USB MIDI to actually send the data
-  MidiUSB.flush();
+
+  if (usbReady) {
+    MidiUSB.flush();
+  }
 }
 
 // -- FUNCTION TO ENTER TEMP MODE --
@@ -610,17 +603,7 @@ void handlePot8Editing() {
 // -- SETUP --
 void setup() {
 
-  USBSetup(); 
-
-
-  // Initialize Serial for debugging
-  //Serial.begin(9600);
-  while (!Serial && millis() < 4000)
-    ;
-
-  //Serial.println(F("\n\nMC8P mini Debug Mode"));
-  //Serial.println(F("Firmware v1.0 with debugging"));
-
+  USBSetup();
 
   // Initialize pot messages with default values
   for (int i = 0; i < 8; i++) {
@@ -652,7 +635,7 @@ void setup() {
 
   // Initialize display
   Wire.begin();
-  Wire.setClock(400000);  // Set to Standard 100kHz for stability
+  Wire.setClock(100000);  // Set to Standard 100kHz for stability
   delay(100);
   //Wire.setWireTimeout(3000, true);
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
@@ -694,7 +677,7 @@ void setup() {
 // -- LOOP  --
 void loop() {
   unsigned long currentTime = millis();
-  
+
   // Handle flashing for assign screen
   if (currentScreen == ASSIGN_SCREEN && assignEditMode == 0) {
     if ((currentTime - lastFlashTime) > flashInterval) {
@@ -703,18 +686,18 @@ void loop() {
       lastFlashTime = currentTime;
     }
   }
-  
+
   // Read all pots on a single timer instead of 8 individual timers
   if ((currentTime - lastPotReadTime) >= readDelay) {
     lastPotReadTime = currentTime;
-    
+
     // Read potentiometers 1-7 (pots 0-6)
     for (int pot = 0; pot < 7; pot++) {
       int rawValue = readMUXChannel(pot);
       int midiValue = mapRawToMIDI(pot, rawValue);
-      
+
       if (catchupModeActive) continue;
-      
+
       if (abs(midiValue - lastMidiValues[pot]) >= CHANGE_THRESHOLD) {
         lastRawValues[pot] = rawValue;
         lastMidiValues[pot] = midiValue;
@@ -725,7 +708,7 @@ void loop() {
         }
       }
     }
-    
+
     // Handle Pot 8 specifically
     if (currentScreen == ASSIGN_SCREEN) {
       handlePot8Editing();
@@ -741,7 +724,7 @@ void loop() {
       }
     }
   }
-  
+
   // Handle catch-up mode and buttons every cycle regardless of pot read timer
   handleCatchup();
   readButtons();
