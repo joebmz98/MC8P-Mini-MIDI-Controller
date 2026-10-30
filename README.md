@@ -165,6 +165,12 @@ From the main screen, press and hold **PREV + NEXT** for 2 seconds:
 - NANO R3: Arduino AVR Boards core **1.8.3 or newer** (needed for the I2C bus timeout that stops a glitched OLED bus from freezing the controller)
 - NANO firmware v1.1 shows the free RAM in the top-left of the boot screen. Below ~250 bytes the NANO is at risk of stack overflow – the OLED buffer alone takes 1 KB of its 2 KB
 
+### **Simulating in Wokwi**
+- Set `#define WOKWI 1` at the top of the NANO firmware before simulating. Wokwi's CD74HC4067 model takes up to a couple of milliseconds to follow a channel change, so with the normal 20 µs settle time every pot appears to move with whichever pot you turn. Set it back to `0` for real hardware.
+- Wire each button as on the PCB: one side to 5V, the other to the input pin with a 10k resistor to GND.
+- Tie the MUX `EN` pin to GND.
+- The serial monitor shows raw MIDI bytes, not text – e.g. `°` `±` `²` are 0xB0–0xB2, Control Change on channels 1–3.
+
 ---
 
 ## **Hardware Pin Connections**
