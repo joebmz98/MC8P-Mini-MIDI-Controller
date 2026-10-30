@@ -77,10 +77,14 @@ const int EEPROM_ADDRESS = 0;
 
 // -- MIDI --
 // We only transmit, so the default 128-byte SysEx receive buffer is wasted RAM.
+// Instantiated explicitly rather than with MIDI_CREATE_CUSTOM_INSTANCE: that macro
+// passes the settings to a different template in MIDI Library 5.0.2 vs later versions
+// (and in 5.0.2 it never reaches the MIDI interface at all). This form works on both.
 struct MC8PMidiSettings : public midi::DefaultSettings {
   static const unsigned SysExMaxSize = 4;
 };
-MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, Serial, MIDI, MC8PMidiSettings);
+midi::SerialMIDI<HardwareSerial> serialMIDI(Serial);
+midi::MidiInterface<midi::SerialMIDI<HardwareSerial>, MC8PMidiSettings> MIDI(serialMIDI);
 
 // -- POT CONFIG --
 // Same 6-byte layout as v1.0 so settings already in EEPROM survive the update.
