@@ -33,7 +33,7 @@ A compact, open-source MIDI controller with **8 potentiometers**, each with **fu
 | SSD1306 OLED (128×64)      | 1   | I²C interface                  | [AliExpress](https://www.aliexpress.com/w/wholesale-ssd1306.html?spm=a2g0o.productlist.search.0) |
 | B100K Potentiometers       | 8   | Linear taper                   | [AliExpress](https://www.aliexpress.com/item/1005003523799166.html?spm=a2g0o.productlist.main.4.41b16412N16EC4&aem_p4p_detail=2026050202175910656752474918880005794025&algo_pvid=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56&algo_exp_id=bb6ca2a0-bb84-4b86-8104-57e7c6a92d56-3&pdp_ext_f=%7B"order"%3A"368"%2C"eval"%3A"1"%2C"fromPage"%3A"search"%7D&pdp_npi=6%40dis%21GBP%210.33%210.33%21%21%210.43%210.43%21%402151e6dc17777134792648341e4c8f%2112000026166615223%21sea%21UK%216042796089%21X%211%210%21n_tag%3A-29919%3Bd%3A582ad943%3Bm03_new_user%3A-29895&curPageLogUid=hZYrDWLC06u8&utparam-url=scene%3Asearch%7Cquery_from%3A%7Cx_object_id%3A1005003523799166%7C_p_origin_prod%3A&search_p4p_id=2026050202175910656752474918880005794025_1) |
 | Tactile Switches           | 4   | For menu navigation (ASSIGN, ENTER, PREV, NEXT) | K2-6639DP-B4SW-04 (JLCPCB) |
-| 10k Resistors (SMD)        | 7   | Pull-up for buttons and misc   | 0603WAF1002T5E (JLCPCB) |
+| 10k Resistors (SMD)        | 7   | Button pull-downs (R3–R6), MUX enable pull-down (R7), MIDI jumpers (R8, R9) | 0603WAF1002T5E (JLCPCB) |
 | 100nF SMD Capacitor        | 1   | Power rail stabilisation       | 1206B104K101CT (JLCPCB) |
 | 10nF SMD Capacitors        | 8   | Potentiometer filtering        | 1206B103K500NT (JLCPCB) |
 | 220Ω SMD Resistors         | 2   | For MIDI circuitry             | 0603WAF2200T5E (JLCPCB) |
@@ -111,11 +111,11 @@ When you press and hold ENTER on the main screen, the controller enters temporar
 After exiting temporary override mode, catch-up mode is activated:
 - Potentiometers must pass through their stored position before taking control
 - This prevents abrupt jumps in your MIDI parameters
-- Once all pots have caught up, normal operation resumes
+- Each pot is caught up on its own – a pot only needs to reach or cross its stored value, and pots you didn't touch stay live (NANO firmware v1.1)
 
 ### Assign Screen (MIDI ASSIGN)
 
-Press ASSIGN from the main screen to enter the configuration menu. Use PREV/NEXT to navigate through edit modes:
+Press ASSIGN from the main screen to enter the configuration menu. Press ENTER to step through the edit modes:
 
 **Navigation flow:**
 1. **SELECT POT** – Choose which pot (1-8) to configure
@@ -127,7 +127,7 @@ Press ASSIGN from the main screen to enter the configuration menu. Use PREV/NEXT
 
 **Editing values:**
 - **PREV/NEXT** – Adjust values incrementally
-- **Potentiometer 8** – Smooth continuous adjustment across full range - faster when selecting MIDI CC's and custom ranges
+- **Potentiometer 8** – Smooth continuous adjustment across full range - faster when selecting MIDI CC's and custom ranges. It only takes over once you turn it, so entering a mode doesn't overwrite the current value (NANO firmware v1.1)
 - **ENTER** – Cycle through edit modes
 - **ASSIGN** – Save settings and return to main screen
 
@@ -162,25 +162,30 @@ From the main screen, press and hold **PREV + NEXT** for 2 seconds:
   - `Adafruit_GFX` – Graphics library for UI
   - `MIDI` – MIDI protocol handling
   - `EEPROM` – Settings storage (built-in)
+- NANO R3: Arduino AVR Boards core **1.8.3 or newer** (needed for the I2C bus timeout that stops a glitched OLED bus from freezing the controller)
+- NANO firmware v1.1 shows the free RAM in the top-left of the boot screen. Below ~250 bytes the NANO is at risk of stack overflow – the OLED buffer alone takes 1 KB of its 2 KB
 
 ---
 
 ## **Hardware Pin Connections**
 
-| Component        | Arduino NANO Pins                    |
-|------------------|--------------------------------------|
-| MUX SIG          | A0                                   |
-| MUX S0           | D8                                   |
-| MUX S1           | D9                                   |
-| MUX S2           | D10                                  |
-| MUX S3           | D16                                  |
-| ASSIGN Button    | D4 (INPUT_PULLUP)                    |
-| ENTER Button     | D5 (INPUT_PULLUP)                    |
-| PREV Button      | D6 (INPUT_PULLUP)                    |
-| NEXT Button      | D7 (INPUT_PULLUP)                    |
-| OLED SDA         | D2 (SDA)                             |
-| OLED SCL         | D3 (SCL)                             |
-| Pot 1-8          | MUX Channels 0-7                     |
+| Component      | Arduino NANO (Rev1) | Pro Micro (Rev2) |
+|----------------|---------------------|------------------|
+| MUX SIG        | A0                  | A0               |
+| MUX S0         | D6                  | D8               |
+| MUX S1         | D7                  | D9               |
+| MUX S2         | D8                  | D10              |
+| MUX S3         | D9                  | D16              |
+| ASSIGN Button  | D2                  | D4               |
+| ENTER Button   | D3                  | D5               |
+| PREV Button    | D4                  | D6               |
+| NEXT Button    | D5                  | D7               |
+| OLED SDA       | A4 (SDA)            | D2 (SDA)         |
+| OLED SCL       | A5 (SCL)            | D3 (SCL)         |
+| MIDI TRS Out   | D1 (TX)             | D1 (TX)          |
+| Pot 1-8        | MUX Channels 0-7    | MUX Channels 0-7 |
+
+**Buttons are active-HIGH.** Each switch connects its pin to 5V, with a 10k pull-down to GND (R3–R6), so a pin reads **HIGH when pressed** and LOW when released. Use `INPUT`, not `INPUT_PULLUP` – the internal pull-up fights the external pull-down and leaves the idle level around 0.8–1.7 V, right at the AVR's LOW threshold. NANO firmware v1.1 uses `INPUT`; the Pro Micro firmware (v1.0) still enables the pull-up.
 
 ---
 
@@ -210,6 +215,15 @@ From the main screen, press and hold **PREV + NEXT** for 2 seconds:
 ---
 
 ## **Version History**
+- **v1.1** (NANO firmware) – Stability & performance
+  - Fixes freezes: I2C bus timeout with automatic OLED recovery
+  - Catch-up is per pot – no more pots locking up after temp mode, or MIDI/OLED flooding while waiting
+  - OLED redraws batched and capped at ~25 fps (each redraw is a full 1 KB I2C transfer)
+  - Full 0–127 resolution with no jitter (raw-domain hysteresis replaces the change-of-2 threshold)
+  - Per-button debounce; buttons read as active-HIGH with `INPUT` to match the board's pull-downs
+  - Faster ADC reads, ~120 bytes RAM saved from the MIDI library, free RAM on the boot screen
+  - NANO R3 / R4 detected automatically – no lines to comment in/out
+  - EEPROM layout unchanged – saved settings are kept when updating from v1.0
 - **v1.0** – Initial release
   - 8-pot control via 74HC4067 MUX
   - Full MIDI CC assignment per pot
