@@ -191,7 +191,7 @@ uint16_t readMux(uint8_t ch) {
   digitalWrite(MUX_S1, (ch >> 1) & 1);
   digitalWrite(MUX_S2, (ch >> 2) & 1);
   digitalWrite(MUX_S3, (ch >> 3) & 1);
-  delayMicroseconds(20);
+  delay(2);
   analogRead(MUX_SIG);  // throwaway: lets the ADC sample cap settle on the new channel
   uint16_t sum = 0;
   for (uint8_t i = 0; i < 4; i++) sum += analogRead(MUX_SIG);
