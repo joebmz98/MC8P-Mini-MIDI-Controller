@@ -31,6 +31,16 @@
 #define FW_VERSION      "1.1"
 #define SHOW_FREE_RAM   1          // 1 = show free RAM on the boot screen (AVR only)
 #define I2C_CLOCK       400000UL   // drop to 100000UL if the OLED wiring is long or flaky
+#define WOKWI           0          // 1 = building for the Wokwi simulator (see MUX_SETTLE_US)
+
+// Time to wait after switching MUX channel. A real CD74HC4067 settles in well under 1 us,
+// so 20 us is generous. Wokwi's simulated MUX lags by up to ~ms after a channel change,
+// which makes every pot follow whichever one you turn - so it gets a much longer wait.
+#if WOKWI
+#define MUX_SETTLE_US   2000
+#else
+#define MUX_SETTLE_US   20
+#endif
 
 const uint8_t  SCAN_INTERVAL_MS    = 4;     // how often all 8 pots are read
 const uint8_t  DISPLAY_INTERVAL_MS = 40;    // max OLED refresh rate (~25 fps)
@@ -191,7 +201,7 @@ uint16_t readMux(uint8_t ch) {
   digitalWrite(MUX_S1, (ch >> 1) & 1);
   digitalWrite(MUX_S2, (ch >> 2) & 1);
   digitalWrite(MUX_S3, (ch >> 3) & 1);
-  delay(2);
+  delayMicroseconds(MUX_SETTLE_US);
   analogRead(MUX_SIG);  // throwaway: lets the ADC sample cap settle on the new channel
   uint16_t sum = 0;
   for (uint8_t i = 0; i < 4; i++) sum += analogRead(MUX_SIG);
